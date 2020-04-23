@@ -29,9 +29,10 @@ pipeline {
         sh """
         #!/bin/bash
         FQDN=\$(oc get route \${API_Name} | grep \${API_Name} | awk '{print \$2}\')
-        API_URL=\"http://\${FQDN}/\"
+        API_URL=http://\${FQDN}/
+        URL=\$(echo \"\${API_URL}\")
         sed -e "s/var CURRENTMODE.*\$/var CURRENTMODE = MODE.OPENSHIFT;/" -i site/app.js
-        sed  "s|var API_URL.*\$|var API_URL=\${API_URL}|" -i site/app.js
+        sed  "s|var API_URL.*\$|var API_URL=\${URL}|" -i site/app.js
         BUILDEXISTS=\$(oc get bc | grep \${UI_Name} | awk '{print \$1}\')
         if [ -z "\${BUILDEXISTS}" ]
         then
