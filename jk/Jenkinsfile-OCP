@@ -29,7 +29,7 @@ pipeline {
         sh """
         #!/bin/bash
         FQDN=\$(oc get route \${API_Name} | grep \${API_Name} | awk '{print \$2}\')
-        URL="http://\{FQDN}/"
+        URL="http://\${FQDN}/"
         echo \${URL}
         sed -e 's/var CURRENTMODE.*\$/var CURRENTMODE = MODE.OPENSHIFT;/' -i site/app.js
         sed -e 's|var API_URL = ""|var API_URL=\${URL}|' -i site/app.js
