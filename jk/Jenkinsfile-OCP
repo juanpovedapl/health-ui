@@ -30,7 +30,7 @@ pipeline {
         #!/bin/bash
         URL=\$(oc get route \${API_Name} | grep \${API_Name} | awk '{print \$2}\')
         echo \${URL}
-        sed -e 's/var CURRENTMODE.*$/var CURRENTMODE = MODE.OPENSHIFT;/' -e 's/var API_URL.*$/var API_URL="http:/${URL}/"' -i site/app.js
+        sed -e 's/var CURRENTMODE.*\$/var CURRENTMODE = MODE.OPENSHIFT;/' -e 's/var API_URL.*\$/var API_URL="http:/${URL}/"' -i site/app.js
         BUILDEXISTS=\$(oc get bc | grep \${UI_Name} | awk '{print \$1}\')
         if [ -z "\${BUILDEXISTS}" ]
         then
