@@ -32,7 +32,7 @@ pipeline {
         PROTOCOL=\$(echo '"http://')
         SLASH=\$(echo '/"')
         sed -e "s/var CURRENTMODE.*\$/var CURRENTMODE = MODE.OPENSHIFT;/" -i site/app.js
-        sed  "s|var API_URL.*\$|var API_URL=\$PROTOCOL\${API_URL}\$SLASH|" -i site/app.js
+        sed  "s|var API_URL.*\$|var API_URL=\$PROTOCOL\${FQDN}\$SLASH|" -i site/app.js
         BUILDEXISTS=\$(oc get bc | grep \${UI_Name} | awk '{print \$1}\')
         if [ -z "\${BUILDEXISTS}" ]
         then
