@@ -80,7 +80,7 @@ pipeline {
     API_Name   = 'health-api'
     UI_Name    = 'health-ui'
     ADMIN_Name = 'health-admin'
-    scan_code  = 'false'
+    scan_code  = 'true'
     scan_img   = 'true'
     OCP_SERVER = 'https://api.shared.na.openshift.opentlc.com:6443'
     OCP_USER   = credentials('OCP_USER')
