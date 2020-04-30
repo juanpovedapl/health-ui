@@ -26,6 +26,26 @@ pipeline {
           sh 'oc login --server=$OCP_SERVER --username=$OCP_USER --password=$OCP_PASS --insecure-skip-tls-verify'
        }
     }
+    stage('Add Registry') {
+      steps {
+        sh """
+        #!/bin/bash
+          STATUS=\$(curl -s -o /dev/null -w '%{http_code}' -u \${ANCHORE_USER}:\${ANCHORE_PASS} -X GET  "\${ANCHORE_URL}/registries/\${DTR}")
+          if [ \${STATUS} -eq 200 ]
+          then
+            echo "DTR is already added"
+            break
+          else
+            oc create sa puller
+            SECRET=\$(oc get sa puller -o jsonpath={.secrets[0].name})
+            TOKEN=\$(oc get secret \${SECRET} -o jsonpath="{.metadata.annotations.openshift\\.io/token-secret\\.value}")
+            echo "{ \\"registry\\": \\""\${DTR}"\\", \\"registry_pass\\":\\""\${TOKEN}"\\", \\"registry_user\\": \\"puller\\" }" > registry.json
+            curl -u \${ANCHORE_USER}:\${ANCHORE_PASS} -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d @registry.json \${ANCHORE_URL}/registries?validate=false
+            echo "DTR has been added"
+          fi
+        """
+      }
+    }
     stage("Build UI Service") {
       agent any
       steps {
@@ -85,7 +105,10 @@ pipeline {
     OCP_SERVER = 'https://api.shared.na.openshift.opentlc.com:6443'
     OCP_USER   = credentials('OCP_USER')
     OCP_PASS   = credentials('OCP_PASS')
-
+    DTR = 'default-route-openshift-image-registry.apps.shared.na.openshift.opentlc.com'
+    ANCHORE_URL = 'http://wdcdmzyz22033174.ibmcloud.dst.ibm.com:8228'
+    ANCHORE_USER = credentials('ANCHORE_USER')
+    ANCHORE_PASS = credentials('ANCHORE_PASS')
 
   }
 }
