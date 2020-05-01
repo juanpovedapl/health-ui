@@ -4,8 +4,9 @@ pipeline {
     stage ('Start') {
       steps {
         // send build started notifications
-        //slackSend (color: '#FFFF00', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+        slackSend (color: '#FFFF00', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
         echo "Start Pipeline"
+        //sh "exit 1"
       }
     }
     stage('Code Analysis') {
@@ -93,22 +94,31 @@ pipeline {
         """
       }
     }
-
+  }
+  post{
+    success {
+      slackSend (color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+    }
+    failure {
+      echo "${currentBuild.result}. Sending PagerDuty alert..."
+      pagerduty(resolve: false, serviceKey: "${PD_KEY}", incDescription: "Pipeline ${UI_Name} Failure", incDetails: "Build: ${env.BUILD_URL}")
+      slackSend (color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+    }
   }
   environment {
-    DB_Name    = 'health-db'
-    API_Name   = 'health-api'
-    UI_Name    = 'health-ui'
-    ADMIN_Name = 'health-admin'
-    scan_code  = 'true'
-    scan_img   = 'true'
-    OCP_SERVER = 'https://api.shared.na.openshift.opentlc.com:6443'
-    OCP_USER   = credentials('OCP_USER')
-    OCP_PASS   = credentials('OCP_PASS')
-    DTR = 'default-route-openshift-image-registry.apps.shared.na.openshift.opentlc.com'
-    ANCHORE_URL = 'http://wdcdmzyz22033174.ibmcloud.dst.ibm.com:8228'
+    DB_Name      = 'health-db'
+    API_Name     = 'health-api'
+    UI_Name      = 'health-ui'
+    ADMIN_Name   = 'health-admin'
+    scan_code    = 'true'
+    scan_img     = 'true'
+    OCP_SERVER   = 'https://api.shared.na.openshift.opentlc.com:6443'
+    OCP_USER     = credentials('OCP_USER')
+    OCP_PASS     = credentials('OCP_PASS')
+    DTR          = 'default-route-openshift-image-registry.apps.shared.na.openshift.opentlc.com'
+    ANCHORE_URL  = 'http://wdcdmzyz22033174.ibmcloud.dst.ibm.com:8228'
     ANCHORE_USER = credentials('ANCHORE_USER')
     ANCHORE_PASS = credentials('ANCHORE_PASS')
-
+    PD_KEY       = 'b981949ec83740039ca7fc240323c040'
   }
 }
