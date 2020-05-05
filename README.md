@@ -4,11 +4,11 @@ This project is a patient records user interface for a conceptual health records
 
 The UI is served by a simple Node.JS Express server, and the overall project goals are:
 
-- to use the project to show a step by step guide of deploying the app on OpenShift Source to Image ( S2I )
+- to use the project to show a step by step guide of deploying the app on OpenShift Source to Image ( S2I ). Also we have modified the source code to integrate a Jenkins pipeline to build this image.
 - to illustrate the versatility of Kubernetes based micro services for modernizing traditional applications - for instance mainframe based applications, or classic Java app server applications
-- to experiment and explore open standards front end technologies for rendering custom charts, and for responsive design
+- to experiment and explore open standards front end technologies for rendering custom charts, and for responsive design.
 
-This project stands alone in test mode, or integrates with associated projects [ paths to other projects ]
+This project has been modified to integrate automatically with a JAVA API.
 
 ![architecture](./design/app-modernization-openshift-s2i-architecture-diagram.png)
 
@@ -42,7 +42,7 @@ In this repo there is a patient user interface. It is written using plain HTML, 
 
 ### Installation
 
-First, you'll need a cluster. [Follow the directions](https://cloud.ibm.com/docs/containers?topic=containers-openshift_tutorial#openshift_create_cluster) to create a Red Hat OpenShift on IBM Cloud cluster.
+First, you'll need a cluster. [Follow the directions](https://cloud.ibm.com/docs/containers?topic=containers-openshift_tutorial#openshift_create_cluster) to order a shared environment inside OPENTLC Labs.
 
 Next, you will need a fork of this repository. Scroll back up to the top of this page and click on the Fork button.
 
@@ -50,32 +50,44 @@ Next, you will need a fork of this repository. Scroll back up to the top of this
 
 Select your github user name from the pop-up window.
 
-To deploy your just-forked repository, go to the Web Console for your OpenShift cluster and create a project:
+#### Deploying using CLI
 
-![create project](./images/createproject.png)
+To deploy your just-forked repository, login to  your OpenShift cluster (use your OPENTLC credentials) and create a project:
 
-Click on your new project. You should see a view that looks like this:
+```
+$ oc login  https://api.shared.na.openshift.opentlc.com:6443
 
-![project](./images/projectview.png)
+$ oc new-project <myProject>
+```
 
-Click on the browse catalog button to see the images available to build with and scroll down to the Node.js image. Click on the 'Node.js' icon.
+Once your project has been created. First step is to create a secret to connect to your repository using a token.
 
-![node](./images/node.png)
+```
+$ oc create secret generic <secret_name> \
+    --from-literal=password=<token> \
+    --type=kubernetes.io/basic-auth
+```
 
-Click through to the second step for configuration, and choose advanced options (a hyperlink on the bottom line).
+Next step is to create the app using S2I. We will use our forked repo, and our secret. This will create a DeploymentConfig, ImageStream, Service and a BuildConfig.
 
-![config](./images/advanced.png)
+```
+$ oc new-app nodejs:10~<myrepo> \
+    --context-dir=site/ \
+    --source-secret=<mysecret> \
+    --name=health-ui
+``` 
 
-You'll see an advanced form like this:
+Final step is to expose our app through a route.
+```
+$ oc expose svc/health-ui
+```
 
-![form](./images/node-advanced-form.png)
+To obtain the URL of the route we will use the following command:
+```
+$ oc get route
+```
 
-Enter your forked Git Repository URL and `/site` for the Context Dir. Click 'Create' at the bottom of the window to build and deploy the application. Scroll through to watch the build deploying:
-
-![build](./images/build.png)
-
-When the build has deployed, click the External Traffic Route and you should see the login screen:
-
+Open a browser and navigate to the URL you obtained:
 ![login](./images/login.png)
 
 You can enter any strings for username and password, for instance test/test... because the app is just running in demo mode.
