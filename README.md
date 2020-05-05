@@ -50,7 +50,7 @@ Next, you will need a fork of this repository. Scroll back up to the top of this
 
 Select your github user name from the pop-up window.
 
-#### Deploying using CLI
+#### Manual Deploy 
 
 To deploy your just-forked repository, login to  your OpenShift cluster (use your OPENTLC credentials) and create a project:
 
