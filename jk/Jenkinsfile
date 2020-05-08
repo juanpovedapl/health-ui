@@ -1,0 +1,49 @@
+pipeline {
+  agent any
+  stages {
+    stage('Create Build Config') {
+      when {
+        expression {
+          openshift.withCluster() {
+            return !openshift.selector("bc","\${UI_Name}").exists();
+          }
+        }
+      }
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.newBuild("--name=\${UI_Name}","--strategy=docker","--binary")
+          }
+        }
+      }
+    }
+    stage('Build UI Image') {
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.selector("bc", "\${UI_Name}").startBuild("--from-dir=.","--wait")
+          }
+        }
+      }
+    }
+    stage('Deploy UI') {
+      when {
+        expression {
+          openshift.withCluster() {
+            return !openshift.selector("dc", "\${UI_Name}").exists()
+          }
+        }
+      }
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.newApp("\${UI_Name}").narrow('svc').expose()
+          }
+        }
+      }
+    }
+  }
+  environment {
+    UI_Name   = 'health-ui'
+  }
+}
