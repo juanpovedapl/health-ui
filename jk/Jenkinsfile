@@ -50,6 +50,7 @@ pipeline {
     }
   }
   environment {
+    API_Name  = 'health-api'
     UI_Name   = 'health-ui'
   }
 }
