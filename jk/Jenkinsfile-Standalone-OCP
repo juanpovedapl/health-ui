@@ -61,7 +61,7 @@ pipeline {
               break
             else
               oc create sa puller
-              SECRET=\$(oc get sa puller -o jsonpath={.secrets[0].name})
+              SECRET=\$(oc get sa puller -o jsonpath={.imagePullSecrets[].name})
               TOKEN=\$(oc get secret \${SECRET} -o jsonpath="{.metadata.annotations.openshift\\.io/token-secret\\.value}")
               echo "{ \\"registry\\": \\""\${DTR}"\\", \\"registry_pass\\":\\""\${TOKEN}"\\", \\"registry_user\\": \\"puller\\" }" > registry.json
               curl -u \${ANCHORE_USER}:\${ANCHORE_PASS} -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d @registry.json \${ANCHORE_URL}/registries?validate=false
