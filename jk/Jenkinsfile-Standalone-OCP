@@ -24,7 +24,7 @@ pipeline {
     }
     stage('Environment Login') {
       steps {
-          sh 'oc login --server=$OCP_SERVER --username=$OCP_USER --password=$OCP_PASS --insecure-skip-tls-verify'
+          sh 'oc login --server=$OCP_SERVER --username=$OCP_USER --password=$OCP_PASS --insecure-skip-tls-verify -n $NS'
        }
     }
     stage("Build UI Service") {
@@ -109,6 +109,7 @@ pipeline {
     OCP_SERVER   = 'https://api.shared.na.openshift.opentlc.com:6443'
     OCP_USER     = credentials('OCP_USER')
     OCP_PASS     = credentials('OCP_PASS')
+    NS           = 'mario-fernandez'
     DTR          = 'default-route-openshift-image-registry.apps.shared.na.openshift.opentlc.com'
     ANCHORE_URL  = 'http://wdcdmzyz22033174.ibmcloud.dst.ibm.com:8228'
     ANCHORE_USER = credentials('ANCHORE_USER')
