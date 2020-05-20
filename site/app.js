@@ -23,9 +23,9 @@ var MODE = {
   "OPENSHIFT": 3
 }
 
-var CURRENTMODE = MODE.TEST;
+var CURRENTMODE = process.env.MODE || MODE.TEST;
 
-var API_URL = ""
+var API_URL = process.env.API_URL || "";
 
 app.post('/mode', function(req, res) {
   logger.debug('called the mode endpoint with mode: ' + req.query.mode);
