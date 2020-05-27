@@ -40,35 +40,13 @@ Example has also heard a lot about cloud computing. There is a lot of traditiona
 
 In this repo there is a patient user interface. It is written using plain HTML, CSS and JavaScript served from a Node.js microservice. The code runs by default with test/demo data, that doesn't rely on a more sophisticated server. The following installation steps can help you easily deploy this using OpenShift S2I ( source to image ).
 
-### Installation
-
-First, you'll need a cluster. [Follow the directions](https://cloud.ibm.com/docs/containers?topic=containers-openshift_tutorial#openshift_create_cluster) to order a shared environment inside OPENTLC Labs.
-
-Next, you will need a fork of this repository. Scroll back up to the top of this page and click on the Fork button.
-
-![fork](./images/fork.png)
-
-Select your github user name from the pop-up window.
-
 #### Manual Deploy 
 
-To deploy your just-forked repository, login to  your OpenShift cluster (use your OPENTLC credentials) and create a project:
+You must have created your secret with the credentials to your git repository and must be logged in to the cluster.
 
-```
-$ oc login  https://api.shared.na.openshift.opentlc.com:6443
+S2I uses a base image (in this case we will use NodeJS) and a source code repository to create a Deployment of the app. To build our app run the following:
 
-$ oc new-project <myProject>
-```
-
-Once your project has been created. First step is to create a secret to connect to your repository using a token.
-
-```
-$ oc create secret generic <secret_name> \
-    --from-literal=password=<token> \
-    --type=kubernetes.io/basic-auth
-```
-
-Next step is to create the app using S2I. We will use our forked repo, and our secret. This will create a DeploymentConfig, ImageStream, Service and a BuildConfig.
+First step is to create the app using S2I. We will use our forked repo, and our secret. This will create a DeploymentConfig, ImageStream, Service and a BuildConfig.
 
 ```
 $ oc new-app nodejs:10~<myrepo> \
@@ -77,7 +55,7 @@ $ oc new-app nodejs:10~<myrepo> \
     --name=health-ui
 ``` 
 
-Final step is to expose our app through a route.
+Next step is to expose our app through a route.
 ```
 $ oc expose svc/health-ui
 ```
@@ -93,3 +71,24 @@ Open a browser and navigate to the URL you obtained:
 You can enter any strings for username and password, for instance test/test... because the app is just running in demo mode.
 
 And you've deployed a Node.js app to Kubernetes using OpenShift S2I.
+
+#### Pipeline Deploy
+
+To run a pipeline deploy is required that your project has a jenkins running inside the cluster, otherwise it will not start the execution.
+We will use a JenkinsPipeline Strategy to deploy the app. This pipeline has 2 stages:
+1. Builds a new image if the DC for the app exists.
+2. Deploys the app if it does not exist.
+
+
+We have defined our pipeline inside `jk/pipeline.yaml`. Steps to run our pipeline:
+1. Create our BuildConfig resource
+   ```
+   $ oc create -f jk/pipeline.yaml
+   ```
+2. Next step is to run our pipeline.
+   ```
+   $ oc start-build ui-pipeline
+   ```
+   Wait to the pipeline to finish and you will see Admin app running.
+
+
