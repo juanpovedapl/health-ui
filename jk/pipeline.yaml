@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: BuildConfig
+metadata:
+  name: ui-pipeline
+spec:
+  strategy:
+    jenkinsPipelineStrategy:
+      jenkinsfile: |-
+        pipeline {
+          agent any
+          stages {
+            stage('Build Image') {
+              when {
+                expression {
+                  openshift.withCluster() {
+                    return openshift.selector("dc", "\${UI_Name}").exists()
+                  }
+                }
+              }
+              steps {
+                script {
+                  openshift.withCluster() {
+                    openshift.startBuild("\${UI_Name}","-e MODE=\${MODE}","-e API_URL=\${API_URL}")
+                  }
+                }
+              }
+            }
+            stage('Deploy S2I') {
+              when {
+                expression {
+                  openshift.withCluster() {
+                    return !openshift.selector("dc","\${UI_Name}").exists();
+                  }
+                }
+              }
+              steps {
+                script {
+                  openshift.withCluster() {
+                    openshift.newApp("nodejs:10~\${UI_Repo_URL}","--context-dir=site/","--source-secret=\${GIT_Secret}","--name=\${UI_Name}").narrow('svc').expose()
+                  }
+                }
+              }
+            }
+          }
+          environment {
+            API_Name  = 'health-api'
+            UI_Name   = 'health-ui'
+            UI_Repo_URL = 'https://github.ibm.com/CIC-MX-DevOps/health-ui'
+            GIT_Secret = 'git'
+            MODE = '1'
+            API_URL = ''
+          }
+        }
+    type: JenkinsPipeline
