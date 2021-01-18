@@ -67,10 +67,15 @@ Next, we are going to start the build of the image:
 ```
 oc start-build health-ui --from-dir . --follow
 ```
-Finally, we will deploy our image
+We will deploy our image
 ```
 oc new-app health-ui -e MODE="MODE.OPENSHIFT" -e API_URL="http://health-api:9080/"
 ```
+Finally, we will expose our app
+```
+oc create route edge health-ui --service=health-ui --port=8080 --insecure-policy=Redirect
+```
+
 Note: API should be running to work with the env variables.
 
 #### Manual Deploy using S2I
