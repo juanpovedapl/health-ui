@@ -40,7 +40,40 @@ Example has also heard a lot about cloud computing. There is a lot of traditiona
 
 In this repo there is a patient user interface. It is written using plain HTML, CSS and JavaScript served from a Node.js microservice. The code runs by default with test/demo data, that doesn't rely on a more sophisticated server. The following installation steps can help you easily deploy this using OpenShift S2I ( source to image ).
 
-#### Manual Deploy 
+### Run Locally using Docker
+
+This image can be run locally using the `Dockerfile` on this repository. Make sure you have docker installed. 
+
+First step is to construct the image.
+```
+$ docker build -t health-ui .
+```
+
+Once the building of the image has been completed. Let's run the container image:
+```
+$ docker run -d -p 8080:8080 health-ui
+```
+
+Open a browser and go to `http://localhost:8080`.You should be able to enter to the app.
+
+#### Manual Deploy
+
+We will create a build for our docker image
+
+```
+oc new-build --strategy docker --binary --name health-ui
+```
+Next, we are going to start the build of the image:
+```
+oc start-build health-ui --from-dir . --follow
+```
+Finally, we will deploy our image
+```
+oc new-app health-ui -e MODE="MODE.OPENSHIFT" -e API_URL="http://health-api:9080/"
+```
+Note: API should be running to work with the env variables.
+
+#### Manual Deploy using S2I
 
 You must have created your secret with the credentials to your git repository and must be logged in to the cluster.
 
@@ -72,7 +105,7 @@ You can enter any strings for username and password, for instance test/test... b
 
 And you've deployed a Node.js app to Kubernetes using OpenShift S2I.
 
-#### Pipeline Deploy
+#### Depoloy App using JenkinsPipeline Strategy
 
 To run a pipeline deploy is required that your project has a jenkins running inside the cluster, otherwise it will not start the execution.
 We will use a JenkinsPipeline Strategy to deploy the app. This pipeline has 2 stages:
@@ -91,4 +124,6 @@ We have defined our pipeline inside `jk/pipeline.yaml`. Steps to run our pipelin
    ```
    Wait to the pipeline to finish and you will see Admin app running.
 
+####  DevOps Pipeline
 
+After we have our pipeline to depoloy our app. Next step is to integrate more DevOps Tools to automatiza the tools
