@@ -1,5 +1,22 @@
 # Patient Health Records: App Modernization with Red Hat OpenShift
 
+# Contents
+
+- [Patient Health Records: App Modernization with Red Hat OpenShift](#patient-health-records-app-modernization-with-red-hat-openshift)
+- [Contents](#contents)
+- [Introduction to Health-App](#introduction-to-health-app)
+  - [Example Health Background Story](#example-health-background-story)
+  - [Project aims](#project-aims)
+- [Health-App Hands-On!](#health-app-hands-on)
+  - [1. Fork and clone this repository](#1-fork-and-clone-this-repository)
+  - [2. Run Locally using Docker](#2-run-locally-using-docker)
+  - [3. Manual Deploy to Openshift](#3-manual-deploy-to-openshift)
+  - [4. Manual Deploy using S2I: Under construction](#4-manual-deploy-using-s2i-under-construction)
+  - [5. Deploy App using Jenkins Pipeline Strategy: Under construction](#5-deploy-app-using-jenkins-pipeline-strategy-under-construction)
+  - [6. DevOps Pipeline: Under construction](#6-devops-pipeline-under-construction)
+
+# Introduction to Health-App
+
 This project is a patient records user interface for a conceptual health records system. The UI is programmed with open standards JavaScript and modern, universal CSS, and HTML5 Canvas for layout.
 
 The UI is served by a simple Node.JS Express server, and the overall project goals are:
@@ -13,7 +30,8 @@ This project has been modified to integrate automatically with a JAVA API.
 ![architecture](./design/app-modernization-openshift-s2i-architecture-diagram.png)
 
 
-#### Example Health Background Story
+
+## Example Health Background Story
 
 Example Health is a pretend, conceptual healthcare/insurance type company. It is imagined to have been around a long time, and has 100s of thousands of patient records in an SQL database connected to an either a mainframe, or a monolithic Java backend.
 
@@ -36,13 +54,15 @@ https://blog.adafruit.com/2018/04/16/machine-learning-helps-to-grok-blood-test-r
 Example has also heard a lot about cloud computing. There is a lot of traditional code in the mainframe and in classic Java app servers. It works well for now ... but some software architects think it may be complimentary to explore some machine learning, and to accelerate development of new user interfaces in the cloud (either public or private).
 
 
-#### Project aims
+## Project aims
 
 In this repo there is a patient user interface. It is written using plain HTML, CSS and JavaScript served from a Node.js microservice. The code runs by default with test/demo data, that doesn't rely on a more sophisticated server. The following installation steps can help you easily deploy this using OpenShift S2I (source to image).
 
-### Fork and clone this repository 
+# Health-App Hands-On!
 
-### Run Locally using Docker
+## 1. Fork and clone this repository 
+
+## 2. Run Locally using Docker
 
 This image can be run locally using the `Dockerfile` on this repository. Make sure you have docker installed. 
 
@@ -59,7 +79,7 @@ $ docker run -d -p 8080:8080 health-ui
 
 3. Open a browser and go to `http://localhost:8080`. You should be able to enter to the app.
 
-#### Manual Deploy
+## 3. Manual Deploy to Openshift
 
 We will create a build for our docker image using s2i (source to image) component in Openshift.
 
@@ -68,12 +88,12 @@ We will create a build for our docker image using s2i (source to image) componen
   - Open Openshift Master Web Console: https://console-openshift-console.apps-crc.testing/dashboards
   - Go to your account name and select **Copy login command:** 
  
-  ![Copy-login](img/copy-login-command.png)
+![Copy-login](images/copy-login-command.png)
 
   - You will be requested to log in again.
   - Click on Display token, and copy the login command.
 
-![Login-token.png](img/Get-TLC-token.gif)
+![Login-token.png](images/Get-TLC-token.gif)
 
 2. With the requested token, proceed with the following command to login into your shared cluster:
 
@@ -314,10 +334,10 @@ For example:
 health-ui-...-health-ui.apps.shared-na46.openshift.opentlc.com
 ```
 
-![health-ui](../img/health-ui.png)
+![health-ui](../images/health-ui.png)
 
 
-#### Manual Deploy using S2I
+## 4. Manual Deploy using S2I: Under construction
 
 You must have created your secret with the credentials to your git repository and must be logged in to the cluster.
 
@@ -349,7 +369,7 @@ You can enter any strings for username and password, for instance test/test... b
 
 And you've deployed a Node.js app to Kubernetes using OpenShift S2I.
 
-#### Deploy App using Jenkins Pipeline Strategy
+## 5. Deploy App using Jenkins Pipeline Strategy: Under construction
 
 To run a pipeline deploy is required that your project has a jenkins running inside the cluster, otherwise it will not start the execution.
 We will use a JenkinsPipeline Strategy to deploy the app. This pipeline has 2 stages:
@@ -368,6 +388,6 @@ We have defined our pipeline inside `jk/pipeline.yaml`. Steps to run our pipelin
    ```
    Wait to the pipeline to finish and you will see Admin app running.
 
-####  DevOps Pipeline
+## 6. DevOps Pipeline: Under construction
 
 After we have our pipeline to deploy our app. Next step is to integrate more DevOps Tools to automatiza the tools
