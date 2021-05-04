@@ -334,7 +334,7 @@ For example:
 health-ui-...-health-ui.apps.shared-na46.openshift.opentlc.com
 ```
 
-![health-ui](../images/health-ui.png)
+![health-ui](images/health-ui.png)
 
 
 ## 4. Manual Deploy using S2I: Under construction
