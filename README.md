@@ -1,12 +1,12 @@
-# Patient Health Records - App Modernization with RedHat OpenShift
+# Patient Health Records: App Modernization with Red Hat OpenShift
 
 This project is a patient records user interface for a conceptual health records system. The UI is programmed with open standards JavaScript and modern, universal CSS, and HTML5 Canvas for layout.
 
 The UI is served by a simple Node.JS Express server, and the overall project goals are:
 
-- to use the project to show a step by step guide of deploying the app on OpenShift Source to Image ( S2I ). Also we have modified the source code to integrate a Jenkins pipeline to build this image.
-- to illustrate the versatility of Kubernetes based micro services for modernizing traditional applications - for instance mainframe based applications, or classic Java app server applications
-- to experiment and explore open standards front end technologies for rendering custom charts, and for responsive design.
+- To use the project to show a step-by-step guide of deploying the app on OpenShift Source to Image (S2I). Also, we have modified the source code to integrate a Jenkins pipeline to build this image.
+- To illustrate the versatility of Kubernetes based microservices for modernizing traditional applications - for instance mainframe based applications, or classic Java app server applications.
+- To experiment and explore open standards front end technologies for rendering custom charts, and for responsive design.
 
 This project has been modified to integrate automatically with a JAVA API.
 
@@ -15,7 +15,7 @@ This project has been modified to integrate automatically with a JAVA API.
 
 #### Example Health Background Story
 
-Example Health is a pretend, conceptual healthcare/insurance type company. It is imagined to have been around a long time, and has 100s of thousands of patient records in an SQL database connected to a either a mainframe, or a monolithic Java backend.
+Example Health is a pretend, conceptual healthcare/insurance type company. It is imagined to have been around a long time, and has 100s of thousands of patient records in an SQL database connected to an either a mainframe, or a monolithic Java backend.
 
 The business rules for the system is written in COBOL or Java. It has some entitlement rules, prescription rules, coverage rules coded in there.
 
@@ -25,7 +25,7 @@ Here's a view a client might see when they log in:
 
 ![screenshot](./design/mockup.png)
 
-Example Health business leaders have recently started understanding how machine learning using some of the patient records, might surface interesting insights that would benefit patients. There is lots of talk about this among some of the big data companies.
+Example Health business leaders have recently started understanding how machine learning using some patient records, might surface interesting insights that would benefit patients. There is lots of talk about this among some big data companies.
 
 https://ai.googleblog.com/2018/05/deep-learning-for-electronic-health.html
 
@@ -33,50 +33,289 @@ https://blog.adafruit.com/2018/04/16/machine-learning-helps-to-grok-blood-test-r
 
 [ concept screenshot to come ]
 
-Example has also heard a lot about cloud computing. There is a lot of traditional code in the mainframe and in classic Java app servers. It works well for now ... but some of the software architects think it may be complimentary to explore some machine learning, and to accelerate development of new user interfaces in the cloud ( either public or private )
+Example has also heard a lot about cloud computing. There is a lot of traditional code in the mainframe and in classic Java app servers. It works well for now ... but some software architects think it may be complimentary to explore some machine learning, and to accelerate development of new user interfaces in the cloud (either public or private).
 
 
 #### Project aims
 
-In this repo there is a patient user interface. It is written using plain HTML, CSS and JavaScript served from a Node.js microservice. The code runs by default with test/demo data, that doesn't rely on a more sophisticated server. The following installation steps can help you easily deploy this using OpenShift S2I ( source to image ).
+In this repo there is a patient user interface. It is written using plain HTML, CSS and JavaScript served from a Node.js microservice. The code runs by default with test/demo data, that doesn't rely on a more sophisticated server. The following installation steps can help you easily deploy this using OpenShift S2I (source to image).
+
+### Fork and clone this repository 
 
 ### Run Locally using Docker
 
 This image can be run locally using the `Dockerfile` on this repository. Make sure you have docker installed. 
 
-First step is to construct the image.
+1. Build the health-ui docker image using Dockerfile.
+   
 ```
 $ docker build -t health-ui .
 ```
 
-Once the building of the image has been completed. Let's run the container image:
+2. Once the build of the image has been completed, run the container image:
 ```
 $ docker run -d -p 8080:8080 health-ui
 ```
 
-Open a browser and go to `http://localhost:8080`.You should be able to enter to the app.
+3. Open a browser and go to `http://localhost:8080`. You should be able to enter to the app.
 
 #### Manual Deploy
 
-We will create a build for our docker image
+We will create a build for our docker image using s2i (source to image) component in Openshift.
+
+1. Connect to OCP Sandbox environment:
+   Login to the Openshift Master Console: 
+  - Open Openshift Master Web Console: https://console-openshift-console.apps-crc.testing/dashboards
+  - Go to your account name and select **Copy login command:** 
+ 
+  ![Copy-login](img/copy-login-command.png)
+
+  - You will be requested to log in again.
+  - Click on Display token, and copy the login command.
+
+![Login-token.png](img/Get-TLC-token.gif)
+
+2. With the requested token, proceed with the following command to login into your shared cluster:
+
+```.term1
+oc login --server=https://api.crc.testing:6443 --token=<your-token>
+```
+
+
+3. Create a new project called **yourID-health-ui*
+  
+```
+  oc new-project <yourID>-health-ui
+```
+
+Locate your local clone of health-ui repository and check the custom Dockerfile, which looks like the following:
+
+```
+FROM node:10-slim
+RUN apt-get update && apt-get install curl -y --no-install-recommends && apt-get clean
+
+COPY site/ /usr/src/app
+
+WORKDIR /usr/src/app
+
+RUN npm install -s --only=production
+
+EXPOSE 8080
+
+ENTRYPOINT npm start
+```
+
+With this Dockerfile, we are going to create a builder image, which will allow us to deploy health-ui:
+
+4. The next step is to tell Openshift that we are going to create a new build with the following specs:
+   1. Strategy: Docker
+   2. Name: health-ui
+   3. Options: 
+      1. **--binary** to set the build to expect binary contents. (if using a GitHub URL this flag is not necessary)
+   
+  And the command should look like the following:
 
 ```
 oc new-build --strategy docker --binary --name health-ui
+    * A Docker build using binary input will be created
+      * The resulting image will be pushed to image stream tag "health-ui:latest"
+      * A binary build was created, use 'oc start-build --from-dir' to trigger a new build
+
+--> Creating resources with label build=health-ui ...
+    imagestream.image.openshift.io "health-ui" created
+    buildconfig.build.openshift.io "health-ui" created
+--> Success
 ```
-Next, we are going to start the build of the image:
+As you can see in the output, Openshift lets you know that *health-ui* build will be expecting a binary input and docker strategy, and an imagestream will be created with the *health-ui* name and *latest* tag, and to start a build you will need to specify the binary file. After this information, OCP lets you know that it created two objects: 
+- health-ui imagestream (is); and
+- health-ui buildconfig (bc).
+And everything was successful.
+
+Let's go deeper into the objects:
+
+5. Verify *is* (short for imagestream), has been created:
+
 ```
-oc start-build health-ui --from-dir . --follow
-```
-We will deploy our image
-```
-oc new-app health-ui -e MODE="MODE.OPENSHIFT" -e API_URL="http://health-api:9080/"
-```
-Finally, we will expose our app
-```
-oc create route edge health-ui --service=health-ui --port=8080 --insecure-policy=Redirect
+$ oc get is
+NAME        IMAGE REPOSITORY                                                                                           TAGS     UPDATED
+health-ui   default-route-openshift-image-registry.apps.shared-na46.openshift.opentlc.com/...-health-ui/health-ui   latest   X minutes ago
 ```
 
-Note: API should be running to work with the env variables.
+As you can see in the output, you get the basic information of health-ui imagestream object: Name, Repository (which is OCP internal repository), used tags and the time of the last update.
+
+With *oc get resource-type* command you can display all the objects (within the project you're in) of a specific resource type, as the above usage. Try it with *bc* (buildconfig):
+
+```
+$ oc get bc
+NAME        TYPE     FROM     LATEST
+health-ui   Docker   Binary   1
+```
+
+As you can see in the output, you get the basic information of health-ui buildconfig object: Name, Type, From and the quantity of latest buildconfig.
+
+6. Once you have verified these objects were created, describe them to know a bit more of each: 
+
+```
+$ oc describe is health-ui
+Name:			health-ui
+Namespace:		yourID-health-ui
+Created:		42 minutes ago
+Labels:			build=health-ui
+...
+```
+
+and bc:
+
+```
+$ oc describe bc health-ui
+Name:		health-ui
+Namespace:	ruthgg-health-ui
+Created:	49 minutes ago
+Labels:		build=health-ui
+...
+```
+
+Check the output of both. BuildConfig will have two interesting WebHooks which could trigger a new build if you use them, however the usage of it will not be covered in this course.
+
+7. Start a new build with the following specifications:
+   1. BuildConfig: “health-ui” 
+   2. Directory: Current (Confirm that you are located at health-ui local clone where Dockerfile is located)
+   3. Use **--follow** option to get logs in real time until it completes or fails.
+
+  And the command should look like the following:
+
+```
+$ oc start-build health-ui --from-dir . --follow
+Uploading directory "." as binary input for the build ...
+.
+Uploading finished
+build.build.openshift.io/health-ui-1 started
+Receiving source from STDIN as archive ...
+Caching blobs under "/var/cache/blobs".
+
+Pulling image node:10-slim ...
+Getting image source signatures
+Copying blob sha256 ...
+...
+Writing manifest to image destination
+Storing signatures
+Successfully pushed image-registry.openshift-image-registry.svc:5000/ruthgg-health-ui/health-ui@sha256:06c3d092cbef32a48e809f3428fa9025488b04853f7b2490d4bea21a917f7173
+Push successful
+```
+
+As you can see, the directory has been uploaded and Dockerfile is being build, you can see stage by stage the output and finally the image is stored/pushed in the OCP internal registry.
+
+This build you just saw has been executed AS A POD, and you can confirm it getting pods and checking build pod logs:
+
+```
+$ oc get pods
+NAME                READY   STATUS      RESTARTS   AGE
+health-ui-1-build   0/1     Completed   0          Xs
+```
+
+As you can see above, there's the pod which executed the build image procedure, and it is in “Completed” status. Compare the logs with the output you had previously, and you can see that they are the exact same:
+
+```
+$ oc logs health-ui-1-build
+Caching blobs under "/var/cache/blobs".
+
+Pulling image node:10-slim ...
+Getting image source signatures
+Copying blob sha256 ...
+...
+Writing manifest to image destination
+Storing signatures
+Successfully pushed image-registry.openshift-image-registry.svc:5000/ruthgg-health-ui/health-ui@sha256:06c3d092cbef32a48e809f3428fa9025488b04853f7b2490d4bea21a917f7173
+Push successful
+```
+
+8. Now that we have an image with all health-ui files, let's deploy it:
+Openshift provides a way to deploy applications/deployments in an easier way (a bit different from kubernetes), and this is with command *oc new-app*. With this command you can send as input a source code URL, a template or a specific image. Type *oc new-app --help* to learn more about the options and specifications.
+
+Create a new app with the following specs:
+  1. Image Name: health-ui
+  2. **-e** option for environment variables (both are customizations for health-app, each app may require different specs):
+     1. MODE: MODE.OPENSHIFT
+     2. API_URL: http://health-api:9080/
+  
+
+ Command should look like the following:
+
+```
+$ oc new-app health-ui -e MODE="MODE.OPENSHIFT" -e API_URL="http://health-api:9080/"
+
+--> Found image eaba12f (10 minutes old) in image stream "yourID-health-ui/health-ui" under tag "latest" for "health-ui"
+
+--> Creating resources ...
+    deployment.apps "health-ui" created
+    service "health-ui" created
+--> Success
+    Application is not exposed. You can expose services to the outside world by executing one or more of the commands below:
+     'oc expose service/health-ui' 
+    Run 'oc status' to view your app.
+```
+
+9. Analyzing the output you can see OCP has created a deployment and a service, let's take a look into them:
+
+```
+$  oc get deployment
+NAME        READY   UP-TO-DATE   AVAILABLE   AGE
+health-ui   1/1     1            1           99s
+```
+
+and 
+
+```
+ oc get service
+NAME        TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+health-ui   ClusterIP   172.30.4.233   <none>        8080/TCP   103s
+```
+
+For the deployment, Openshift provides the name, how many pods are ready and the total, how many are up-to-date, available and its age. 
+On the other hand, for service we got its name, type of service, the cluster-ip assigned, external-ip (if existent), ports and service age.
+
+10. Check pod logs to confirm that the application is listening on port 8080:
+```
+oc logs health-ui-...
+
+> Example@1.0.0 start /usr/src/app
+> node app.js
+
+[2021-03-11T22:04:38.928] [DEBUG] default - launching Example health endpoint
+[2021-03-11T22:04:38.938] [DEBUG] default - Listening on port  8080
+```
+
+11. Now that we confirmed the deployment and pod are OK, let's proceed exposing the application:
+```
+$oc expose service health-ui
+route.route.openshift.io/health-ui exposed
+```
+
+12. Check health-ui is now available:
+```
+$ oc get routes
+NAME        HOST/PORT                                                           PATH   SERVICES    PORT       TERMINATION   WILDCARD
+health-ui   health-ui-...-health-ui.apps.shared-na46.openshift.opentlc.com             health-ui   8080-tcp                 None
+```
+
+With get command for routes, Openshift provides: Name, full route (with the host and name), path (if used), service exposed, used port, termination (if used) and Wildcard (if exists).
+
+13. Add route to hosts file.
+ - Open /etc/hosts file as per prerequisites instructions (it will depend on your OS)
+ - Add the route to the line where the Sandbox environment is located:
+```
+9.220.50.15 <insert-your-route-here> console-openshift-console.apps-crc.testing [...]
+For example:
+9.220.50.15 health-ui-ruthgg-health-ui.apps-crc.testing console-openshift-console.apps-crc.testing [...]
+```
+
+14. Test your application! Go to your favorite browser and insert the route provided in command above, it should look like this:
+```
+health-ui-...-health-ui.apps.shared-na46.openshift.opentlc.com
+```
+
+![health-ui](../img/health-ui.png)
+
 
 #### Manual Deploy using S2I
 
@@ -110,7 +349,7 @@ You can enter any strings for username and password, for instance test/test... b
 
 And you've deployed a Node.js app to Kubernetes using OpenShift S2I.
 
-#### Depoloy App using JenkinsPipeline Strategy
+#### Deploy App using Jenkins Pipeline Strategy
 
 To run a pipeline deploy is required that your project has a jenkins running inside the cluster, otherwise it will not start the execution.
 We will use a JenkinsPipeline Strategy to deploy the app. This pipeline has 2 stages:
@@ -131,4 +370,4 @@ We have defined our pipeline inside `jk/pipeline.yaml`. Steps to run our pipelin
 
 ####  DevOps Pipeline
 
-After we have our pipeline to depoloy our app. Next step is to integrate more DevOps Tools to automatiza the tools
+After we have our pipeline to deploy our app. Next step is to integrate more DevOps Tools to automatiza the tools
