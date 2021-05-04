@@ -60,7 +60,18 @@ In this repo there is a patient user interface. It is written using plain HTML, 
 
 # Health-App Hands-On!
 
-## 1. Fork and clone this repository 
+## 1. Fork and clone this repository
+
+- In the top-right corner of the page, click Fork.
+  
+  ![fork](images/fork_button.jpeg)
+
+- Select your organization: 
+  
+    ![fork-org](images/select-your-org.png)
+
+- Wait for the fork to finish, and then clone it locally following [these instructions](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository).
+  
 
 ## 2. Run Locally using Docker
 
