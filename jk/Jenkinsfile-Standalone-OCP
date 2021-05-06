@@ -4,9 +4,9 @@ pipeline {
     stage ('Start') {
       steps {
         // send build started notifications
-        slackSend (color: '#FFFF00', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+        //slackSend (color: '#FFFF00', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
         echo "Start Pipeline"
-        sh "exit 1"
+        //sh "exit 1"
       }
     }
     stage('Code Analysis') {
@@ -28,53 +28,25 @@ pipeline {
        }
     }
     stage("Build UI Service") {
-      agent any
       steps {
         sh """
         #!/bin/bash
-        FQDN=\$(oc get route \${API_Name} -o jsonpath={.spec.host})
-        sed -e "s/var CURRENTMODE.*\$/var CURRENTMODE = MODE.OPENSHIFT;/" -i site/app.js
-        sed  "s|var API_URL.*\$|var API_URL=\\"http://\${FQDN}/\\"|" -i site/app.js
+        #FQDN=\$(oc get route \${API_Name} -o jsonpath={.spec.host})
+        #sed -e "s/var CURRENTMODE.*\$/var CURRENTMODE = MODE.OPENSHIFT;/" -i site/app.js
+        #sed  "s|var API_URL.*\$|var API_URL=\\"http://\${FQDN}/\\"|" -i site/app.js
         BUILDEXISTS=\$(oc get bc | grep \${UI_Name} | awk '{print \$1}\')
         if [ -z "\${BUILDEXISTS}" ]
         then
           oc new-build --strategy docker --binary --name  ${UI_Name}
           oc start-build ${UI_Name} --from-dir . --follow
         else
-            oc start-build ${UI_Name} --from-dir . --follow
+          oc start-build ${UI_Name} --from-dir . --follow
         fi
         """
       }
     }
 
-    stage('Security Scan with Anchore'){
-      when {
-        expression { "$scan_img" == "true" }
-      }
-        steps {
-          sh """
-          #!/bin/bash
-            STATUS=\$(curl -s -o /dev/null -w '%{http_code}' -u \${ANCHORE_USER}:\${ANCHORE_PASS} -X GET  "\${ANCHORE_URL}/registries/\${DTR}")
-            if [ \${STATUS} -eq 200 ]
-            then
-              echo "DTR is already added"
-              break
-            else
-              oc create sa puller
-              SECRET=\$(oc get sa puller -o jsonpath={.imagePullSecrets[].name})
-              TOKEN=\$(oc get secret \${SECRET} -o jsonpath="{.metadata.annotations.openshift\\.io/token-secret\\.value}")
-              echo "{ \\"registry\\": \\""\${DTR}"\\", \\"registry_pass\\":\\""\${TOKEN}"\\", \\"registry_user\\": \\"puller\\" }" > registry.json
-              curl -u \${ANCHORE_USER}:\${ANCHORE_PASS} -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d @registry.json \${ANCHORE_URL}/registries?validate=false
-              echo "DTR has been added"
-            fi
-          """
-          sh "echo \$(oc get is | grep \${UI_Name} | awk '{print \$2}\') > anchore_images"
-          anchore name: 'anchore_images'
-        }
-    }
-
     stage("Deploy UI") {
-      agent any
       steps {
         echo "Deploying UI Service"
         sh """
@@ -91,29 +63,21 @@ pipeline {
   }
   post{
     success {
-      slackSend (color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+      echo "${currentBuild.result}."
+      //slackSend (color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
     }
     failure {
       echo "${currentBuild.result}. Sending PagerDuty alert..."
-      pagerduty(resolve: false, serviceKey: "${PD_KEY}", incDescription: "Pipeline ${UI_Name} Failure", incDetails: "Build: ${env.BUILD_URL}")
-      slackSend (color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+      //pagerduty(resolve: false, serviceKey: "${PD_KEY}", incDescription: "Pipeline ${UI_Name} Failure", incDetails: "Build: ${env.BUILD_URL}")
+      //slackSend (color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
     }
   }
   environment {
-    DB_Name      = 'health-db'
-    API_Name     = 'health-api'
     UI_Name      = 'health-ui'
-    ADMIN_Name   = 'health-admin'
-    scan_code    = 'true'
-    scan_img     = 'true'
-    OCP_SERVER   = 'https://api.shared.na.openshift.opentlc.com:6443'
+    scan_code    = 'false'
+    OCP_SERVER   = 'https://api.crc.testing:6443'
     OCP_USER     = credentials('OCP_USER')
     OCP_PASS     = credentials('OCP_PASS')
     NS           = 'mario-fernandez'
-    DTR          = 'default-route-openshift-image-registry.apps.shared.na.openshift.opentlc.com'
-    ANCHORE_URL  = 'http://wdcdmzyz22033174.ibmcloud.dst.ibm.com:8228'
-    ANCHORE_USER = credentials('ANCHORE_USER')
-    ANCHORE_PASS = credentials('ANCHORE_PASS')
-    PD_KEY       = 'b981949ec83740039ca7fc240323c040'
   }
 }
