@@ -51,7 +51,7 @@ pipeline {
         echo "Deploying UI Service"
         sh """
         #!/bin/bash
-        UIDEPLOYED=\$(oc get dc | grep \${UI_Name} | awk '{print \$1}\')
+        UIDEPLOYED=\$(oc get deploy | grep \${UI_Name} | awk '{print \$1}\')
         if [ -z "\${UIDEPLOYED}" ]
         then
           oc new-app ${UI_Name}
