@@ -71,8 +71,6 @@ pipeline {
         #!/bin/bash
         ROUTE=\$(oc get routes health-ui -o jsonpath='{.spec.host}')
         echo \${ROUTE}
-        IP=\$(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="ExternalIP")].address}')
-        echo \${IP}
         STATUS=\$(curl -s -o /dev/null --insecure -w '%{http_code}' "http://\${ROUTE}/")
         if [ "\${STATUS}" -ne "200" ]
         then

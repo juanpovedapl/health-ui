@@ -67,8 +67,8 @@ pipeline {
         sh """
         #!/bin/bash
         IP=\$(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="ExternalIP")].address}')
-        echo \$IP
-        STATUS=\$(curl -s -o /dev/null --insecure -w '%{http_code}' "http://169.57.43.95:30001/")
+        echo \${IP}
+        STATUS=\$(curl -s -o /dev/null --insecure -w '%{http_code}' "http://\${IP}:$PORT/")
         if [ "\${STATUS}" -ne "200" ]
         then
            echo "Functional Test NOT PASSED"
