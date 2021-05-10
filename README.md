@@ -11,9 +11,15 @@
   - [1. Fork and clone this repository](#1-fork-and-clone-this-repository)
   - [2. Run Locally using Docker](#2-run-locally-using-docker)
   - [3. Manual Deploy to Openshift](#3-manual-deploy-to-openshift)
-  - [4. Manual Deploy using S2I: Under construction](#4-manual-deploy-using-s2i-under-construction)
-  - [5. Deploy App using Jenkins Pipeline Strategy: Under construction](#5-deploy-app-using-jenkins-pipeline-strategy-under-construction)
-  - [6. DevOps Pipeline: Under construction](#6-devops-pipeline-under-construction)
+  - [4. Automate deployment Health-UI using Jenkins Pipeline Strategy in OCP SandBox environment.](#4-automate-deployment-health-ui-using-jenkins-pipeline-strategy-in-ocp-sandbox-environment)
+    - [Create health-ui pipeline](#create-health-ui-pipeline)
+    - [Create Openshift credentials](#create-openshift-credentials)
+    - [Edit and point pipeline to the right Jenkinsfile](#edit-and-point-pipeline-to-the-right-jenkinsfile)
+  - [5. Manual Deploy using S2I: Under construction](#5-manual-deploy-using-s2i-under-construction)
+  - [6. Deploy App using Jenkins Pipeline Strategy: Under construction](#6-deploy-app-using-jenkins-pipeline-strategy-under-construction)
+  - [7. DevOps Pipeline: Under construction](#7-devops-pipeline-under-construction)
+
+---
 
 # Introduction to Health-App
 
@@ -29,7 +35,7 @@ This project has been modified to integrate automatically with a JAVA API.
 
 ![architecture](./design/app-modernization-openshift-s2i-architecture-diagram.png)
 
-
+---
 
 ## Example Health Background Story
 
@@ -53,12 +59,17 @@ https://blog.adafruit.com/2018/04/16/machine-learning-helps-to-grok-blood-test-r
 
 Example has also heard a lot about cloud computing. There is a lot of traditional code in the mainframe and in classic Java app servers. It works well for now ... but some software architects think it may be complimentary to explore some machine learning, and to accelerate development of new user interfaces in the cloud (either public or private).
 
+---
 
 ## Project aims
 
 In this repo there is a patient user interface. It is written using plain HTML, CSS and JavaScript served from a Node.js microservice. The code runs by default with test/demo data, that doesn't rely on a more sophisticated server. The following installation steps can help you easily deploy this using OpenShift S2I (source to image).
 
+---
+
 # Health-App Hands-On!
+
+---
 
 ## 1. Fork and clone this repository
 
@@ -72,6 +83,7 @@ In this repo there is a patient user interface. It is written using plain HTML, 
 
 - Wait for the fork to finish, and then clone it locally following [these instructions](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository).
   
+---
 
 ## 2. Run Locally using Docker
 
@@ -89,6 +101,8 @@ $ docker run -d -p 8080:8080 health-ui
 ```
 
 3. Open a browser and go to `http://localhost:8080`. You should be able to enter to the app.
+
+---
 
 ## 3. Manual Deploy to Openshift
 
@@ -347,8 +361,130 @@ health-ui-...-health-ui.apps.shared-na46.openshift.opentlc.com
 
 ![health-ui](images/health-ui.png)
 
+---
 
-## 4. Manual Deploy using S2I: Under construction
+## 4. Automate deployment Health-UI using Jenkins Pipeline Strategy in OCP SandBox environment.
+
+---
+
+### Create health-ui pipeline
+
+1. Ensure your Jenkins local instance is up and running at http://localhost:8080/
+   
+2. Click on **Open Blue Ocean** in the left menu:
+   
+![Blue-Ocean](images/openblueocean.png)
+
+3. Click on **Create new pipeline**:
+   
+![new-Pipeline](images/new-pipeline.png)
+
+4. Select **GitHub Enterprise**:
+   
+![github-enterprise](images/github-enterprise.png)
+
+5. Click on **Add** to connect your new pipeline with IBM GitHub Enterprise:
+   
+![add-github](images/add-github.png)
+
+6. Add the following fields:
+* Server name: IBM
+* Server URL: https://github.ibm.com/
+
+![github-accepted](images/repository-accepted.png)
+
+1. Select your organization under the list (it's corresponding to your w3 ID):
+
+![select-org](images/select-your-org.png)
+
+8. Choose **health-ui** from repository list:
+
+![search-health-ui](images/search-%20health-ui.png)
+![choose-health-ui](images/select-health-ui.png)
+
+
+9. Click on **Create pipeline** and wait until branch indexing finishes:
+
+![branch-index](images/branch-index.png)
+
+### Create Openshift credentials
+
+1. Go back to classic view on Jenkins
+
+![go-to-classic](images/go-to-classic.png)
+
+2. Go to **Manage Jenkins**:
+
+![manage-jenkins](images/manage-jenkins.png)
+
+3. Go to **manage credentials**:
+
+![manage-credentials](images/manage-credentials.png)
+
+4. Select **Jenkins** and then **Global credentials**:
+
+![select-jenkins-credentials](images/jenkins-credentials.png)
+
+![select-global-credentials](images/global-credentials.png)
+
+5. On the left menu, select **Add credentials**:
+
+![add-credentials](images/add-credentials.png)
+
+6. Create *OCP_USER* credentials:
+On the **kind** drop-down menu, select **Secret text**. Fill the fields with the following information:
+- **kind:** Secret text
+- **ID:** OCP_USER
+- **Secret:** your w3 ID. example@mx1.ibm.com / example@ibm.com
+
+![ocp-user](images/ocp-user-add.png)
+
+7. In the same way, create *OCP_PASS* credentials, repeat this section to create another password with the following specs:
+On the **kind** drop-down menu, select **Secret text**. Fill the fields with the following information:
+- **kind:** Secret text
+- **ID:** OCP_PASS
+- **Secret:** your-w3-password
+
+![ocp-pass](images/ocp-pass-add.png)
+
+### Edit and point pipeline to the right Jenkinsfile
+
+1. **On your local repository**, locate Jenkinsfile located at [jk/Jenkinsfile-ocp](jk/Jenkinsfile-ocp).
+2. Read and understand the Jenkinsfile, in the environment variables locate *NS* variable (namespace=project) and change it to yours:
+```
+    NS= 'your-ocp-project'
+```
+3. Go back to Jenkins home, and select **health-ui** pipeline, and select **Configure**:
+
+![Configure](images/master-branch.png)
+
+4. Select **Build Configuration** and change *script path* to:
+```
+jk/Jenkinsfile-ocp
+```
+![change-jenkinsfile](images/point-to-jenkinsfile.png)
+
+Save your changes.
+
+5. You are now ready to run your pipeline! Go to health-ui pipeline, and select **master** branch:
+
+![master](images/master-branch.png)
+
+6. And click on **Build Now**, to follow the process, under **Build History** it will appear a new build number, click on it:
+
+![build-now](images/build-now.png)
+![build](images/build.png)
+
+7. Check build logs clicking on **Console Output**:
+
+![console-output](images/console-output.png)
+
+8. Once your pipeline is successful, check health-ui URL. 
+![health-ui](images/health-ui.png)
+
+---
+
+## 5. Manual Deploy using S2I: Under construction
 
 You must have created your secret with the credentials to your git repository and must be logged in to the cluster.
 
@@ -380,7 +516,7 @@ You can enter any strings for username and password, for instance test/test... b
 
 And you've deployed a Node.js app to Kubernetes using OpenShift S2I.
 
-## 5. Deploy App using Jenkins Pipeline Strategy: Under construction
+## 6. Deploy App using Jenkins Pipeline Strategy: Under construction
 
 To run a pipeline deploy is required that your project has a jenkins running inside the cluster, otherwise it will not start the execution.
 We will use a JenkinsPipeline Strategy to deploy the app. This pipeline has 2 stages:
@@ -399,6 +535,6 @@ We have defined our pipeline inside `jk/pipeline.yaml`. Steps to run our pipelin
    ```
    Wait to the pipeline to finish and you will see Admin app running.
 
-## 6. DevOps Pipeline: Under construction
+## 7. DevOps Pipeline: Under construction
 
 After we have our pipeline to deploy our app. Next step is to integrate more DevOps Tools to automatiza the tools
