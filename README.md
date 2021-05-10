@@ -398,6 +398,9 @@ health-ui-...-health-ui.apps.shared-na46.openshift.opentlc.com
 
 ![select-org](images/select-org.png)
 
+![ur-org](images/ur-org.png)
+
+
 8. Choose **health-ui** from repository list:
 
 ![search-health-ui](images/search-%20health-ui.png)
@@ -510,6 +513,7 @@ Save your changes.
 6. Select your organization under the list (it's corresponding to your w3 ID):
 
 ![select-org](images/select-org.png)
+![ur-org](images/ur-org.png)
 
 7. Choose **health-ui** from repository list:
 
