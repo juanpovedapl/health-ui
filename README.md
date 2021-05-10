@@ -394,9 +394,9 @@ health-ui-...-health-ui.apps.shared-na46.openshift.opentlc.com
 
 ![github-accepted](images/repository-accepted.png)
 
-1. Select your organization under the list (it's corresponding to your w3 ID):
+7. Select your organization under the list (it's corresponding to your w3 ID):
 
-![select-org](images/select-your-org.png)
+![select-org](images/select-org.png)
 
 8. Choose **health-ui** from repository list:
 
@@ -509,7 +509,7 @@ Save your changes.
 
 6. Select your organization under the list (it's corresponding to your w3 ID):
 
-![select-org](images/select-your-org.png)
+![select-org](images/select-org.png)
 
 7. Choose **health-ui** from repository list:
 
