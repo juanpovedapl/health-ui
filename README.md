@@ -11,13 +11,14 @@
   - [1. Fork and clone this repository](#1-fork-and-clone-this-repository)
   - [2. Run Locally using Docker](#2-run-locally-using-docker)
   - [3. Manual Deploy to Openshift](#3-manual-deploy-to-openshift)
-  - [4. Automate deployment Health-UI using Jenkins Pipeline Strategy in OCP SandBox environment.](#4-automate-deployment-health-ui-using-jenkins-pipeline-strategy-in-ocp-sandbox-environment)
+  - [4. Automate deployment Health-UI using Jenkins Pipeline Strategy in OCP SandBox cluster.](#4-automate-deployment-health-ui-using-jenkins-pipeline-strategy-in-ocp-sandbox-cluster)
     - [Create health-ui pipeline](#create-health-ui-pipeline)
     - [Create Openshift credentials](#create-openshift-credentials)
     - [Edit and point pipeline to the right Jenkinsfile](#edit-and-point-pipeline-to-the-right-jenkinsfile)
-  - [5. Manual Deploy using S2I: Under construction](#5-manual-deploy-using-s2i-under-construction)
-  - [6. Deploy App using Jenkins Pipeline Strategy: Under construction](#6-deploy-app-using-jenkins-pipeline-strategy-under-construction)
-  - [7. DevOps Pipeline: Under construction](#7-devops-pipeline-under-construction)
+  - [5. Automate deployment Health-UI using Jenkins Pipeline Strategy in personal ICKS cluster.](#5-automate-deployment-health-ui-using-jenkins-pipeline-strategy-in-personal-icks-cluster)
+    - [Create health-ui pipeline](#create-health-ui-pipeline-1)
+    - [Create ICKS credentials](#create-icks-credentials)
+    - [Edit and point pipeline to the right Jenkinsfile](#edit-and-point-pipeline-to-the-right-jenkinsfile-1)
 
 ---
 
@@ -363,7 +364,7 @@ health-ui-...-health-ui.apps.shared-na46.openshift.opentlc.com
 
 ---
 
-## 4. Automate deployment Health-UI using Jenkins Pipeline Strategy in OCP SandBox environment.
+## 4. Automate deployment Health-UI using Jenkins Pipeline Strategy in OCP SandBox cluster.
 
 ---
 
@@ -484,57 +485,109 @@ Save your changes.
 
 ---
 
-## 5. Manual Deploy using S2I: Under construction
+## 5. Automate deployment Health-UI using Jenkins Pipeline Strategy in personal ICKS cluster.
 
-You must have created your secret with the credentials to your git repository and must be logged in to the cluster.
+---
 
-S2I uses a base image (in this case we will use NodeJS) and a source code repository to create a Deployment of the app. To build our app run the following:
+### Create health-ui pipeline
 
-First step is to create the app using S2I. We will use our forked repo, and our secret. This will create a DeploymentConfig, ImageStream, Service and a BuildConfig.
+1. Ensure your Jenkins local instance is up and running at http://localhost:8080/
+   
+2. Click on **Open Blue Ocean** in the left menu:
+   
+![Blue-Ocean](images/openblueocean.png)
 
+3. Click on **Create new pipeline**:
+   
+![new-Pipeline](images/new-pipeline.png)
+
+4. Select **GitHub Enterprise**:
+   
+![github-enterprise](images/github-enterprise.png)
+
+5. Select **IBM** GitHub Enterprise.
+
+6. Select your organization under the list (it's corresponding to your w3 ID):
+
+![select-org](images/select-your-org.png)
+
+7. Choose **health-ui** from repository list:
+
+![search-health-ui](images/search-%20health-ui.png)
+![choose-health-ui](images/select-health-ui.png)
+
+9. Click on **Create pipeline**. It will request to configure a different name, you can name it as you like, as a suggestion, use *health-ui-icks* and wait until branch indexing finishes:
+
+![branch-index](images/branch-index.png)
+
+### Create ICKS credentials
+
+1. Go back to classic view on Jenkins
+
+![go-to-classic](images/go-to-classic.png)
+
+2. Go to **Manage Jenkins**:
+
+![manage-jenkins](images/manage-jenkins.png)
+
+3. Go to **manage credentials**:
+
+![manage-credentials](images/manage-credentials.png)
+
+4. Select **Jenkins** and then **Global credentials**:
+
+![select-jenkins-credentials](images/jenkins-credentials.png)
+
+![select-global-credentials](images/global-credentials.png)
+
+5. On the left menu, select **Add credentials**:
+
+![add-credentials](images/add-credentials.png)
+
+6. Create *ICS_PASS* credentials:
+On the **kind** drop-down menu, select **Secret text**. Fill the fields with the following information:
+For this credential, we will use IBM Cloud APIKEY, generated in prerequisites [here](https://github.ibm.com/DevOps-Trainings/DevOps-Bootcamp#create-an-ibm-cloud-apikey).
+
+- **kind:** Secret text
+- **ID:** ICS_PASS
+- **Secret:** IBMCLOUD_APIKEY
+
+![ics_pass](images/ics_pass.png)
+
+### Edit and point pipeline to the right Jenkinsfile
+
+1. **On your local repository**, locate Jenkinsfile located at [jk/Jenkinsfile-icks](jk/Jenkinsfile-icks).
+2. Read and understand the Jenkinsfile, in the environment variables locate *NS* variable and change it to yours:
 ```
-$ oc new-app nodejs:10~<myrepo> \
-    --context-dir=site/ \
-    --source-secret=<mysecret> \
-    --name=health-ui
-``` 
-
-Next step is to expose our app through a route.
+    ICS_NAME= 'my-cluster-name'
+    NS= 'your-icks-project'
 ```
-$ oc expose svc/health-ui
+3. Go back to Jenkins home, and select **health-ui** pipeline, and select **Configure**:
+
+![Configure](images/master-branch.png)
+
+4. Select **Build Configuration** and change *script path* to:
 ```
-
-To obtain the URL of the route we will use the following command:
+jk/Jenkinsfile-icks
 ```
-$ oc get route
-```
+![change-jenkinsfile](images/point-to-jenkinsfile.png)
 
-Open a browser and navigate to the URL you obtained:
-![login](./images/login.png)
+Save your changes.
 
-You can enter any strings for username and password, for instance test/test... because the app is just running in demo mode.
+5. You are now ready to run your pipeline! Go to health-ui pipeline, and select **master** branch:
 
-And you've deployed a Node.js app to Kubernetes using OpenShift S2I.
+![master](images/master-branch.png)
 
-## 6. Deploy App using Jenkins Pipeline Strategy: Under construction
+6. And click on **Build Now**, to follow the process, under **Build History** it will appear a new build number, click on it:
 
-To run a pipeline deploy is required that your project has a jenkins running inside the cluster, otherwise it will not start the execution.
-We will use a JenkinsPipeline Strategy to deploy the app. This pipeline has 2 stages:
-1. Builds a new image if the DC for the app exists.
-2. Deploys the app if it does not exist.
+![build-now](images/build-now.png)
+![build](images/build.png)
 
+7. Check build logs clicking on **Console Output**:
 
-We have defined our pipeline inside `jk/pipeline.yaml`. Steps to run our pipeline:
-1. Create our BuildConfig resource
-   ```
-   $ oc create -f jk/pipeline.yaml
-   ```
-2. Next step is to run our pipeline.
-   ```
-   $ oc start-build ui-pipeline
-   ```
-   Wait to the pipeline to finish and you will see Admin app running.
+![console-output](images/console-output.png)
 
-## 7. DevOps Pipeline: Under construction
+8. Once your pipeline is successful, check health-ui URL. 
+![health-ui](images/health-ui.png)
 
-After we have our pipeline to deploy our app. Next step is to integrate more DevOps Tools to automatiza the tools
+---
