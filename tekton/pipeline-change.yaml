@@ -16,7 +16,7 @@ spec:
         workspace: shared-workspace
     params:
       - name: url
-        value: https://github.ibm.com/Mario-Fernandez/health-ui
+        value: <your-github-repo ie. https://github.ibm.com/DevOps-Trainings/health-ui>
       - name: subdirectory
         value: ""
       - name: deleteExisting
