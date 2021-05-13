@@ -14,11 +14,11 @@
   - [4. Automate deployment Health-UI using Jenkins Pipeline Strategy in OCP SandBox cluster.](#4-automate-deployment-health-ui-using-jenkins-pipeline-strategy-in-ocp-sandbox-cluster)
     - [Create health-ui pipeline](#create-health-ui-pipeline)
     - [Create Openshift credentials](#create-openshift-credentials)
-    - [Edit and point pipeline to the right Jenkinsfile](#edit-and-point-pipeline-to-the-right-jenkinsfile)
+    - [Change pipeline to use a different Jenkinsfile](#change-pipeline-to-use-a-different-jenkinsfile)
   - [5. Automate deployment Health-UI using Jenkins Pipeline Strategy in personal ICKS cluster.](#5-automate-deployment-health-ui-using-jenkins-pipeline-strategy-in-personal-icks-cluster)
     - [Create health-ui pipeline](#create-health-ui-pipeline-1)
     - [Create ICKS credentials](#create-icks-credentials)
-    - [Edit and point pipeline to the right Jenkinsfile](#edit-and-point-pipeline-to-the-right-jenkinsfile-1)
+    - [Change pipeline to use a different Jenkinsfile](#change-pipeline-to-use-a-different-jenkinsfile-1)
 
 ---
 
@@ -394,20 +394,32 @@ health-ui-...-health-ui.apps.shared-na46.openshift.opentlc.com
 
 ![github-accepted](images/repository-accepted.png)
 
-7. Select your organization under the list (it's corresponding to your w3 ID):
+7. You will need to provide to Jenkins a GitHub Token, click on 'Create an access token here':
+
+![GitHub Token](images/github-token.png)
+
+It will direct you to GitHub@IBM to create it. Fill the field with a token name and leave the checks as they are setup:
+
+![Github-token-name](images/token-name.png)
+
+Click on "Generate token":
+![github-generate-token](images/generate-token.png)
+
+
+8. Select your organization under the list (it's corresponding to your w3 ID):
 
 ![select-org](images/select-org.png)
 
 ![ur-org](images/ur-org.png)
 
 
-8. Choose **health-ui** from repository list:
+9. Choose **health-ui** from repository list:
 
 ![search-health-ui](images/search-%20health-ui.png)
 ![choose-health-ui](images/select-health-ui.png)
 
 
-9. Click on **Create pipeline** and wait until branch indexing finishes:
+10. Click on **Create pipeline** and wait until branch indexing finishes:
 
 ![branch-index](images/branch-index.png)
 
@@ -451,18 +463,27 @@ On the **kind** drop-down menu, select **Secret text**. Fill the fields with the
 
 ![ocp-pass](images/ocp-pass-add.png)
 
-### Edit and point pipeline to the right Jenkinsfile
+### Change pipeline to use a different Jenkinsfile
 
 1. **On your local repository**, locate Jenkinsfile located at [jk/Jenkinsfile-ocp](jk/Jenkinsfile-ocp).
-2. Read and understand the Jenkinsfile, in the environment variables locate *NS* variable (namespace=project) and change it to yours:
+2. Read and understand this Jenkinsfile. In the environment variables locate *NS* variable (namespace=project) and change it to yours:
 ```
     NS= 'your-ocp-project'
 ```
-3. Go back to Jenkins home, and select **health-ui** pipeline, and select **Configure**:
+
+3. Commit your changes and push them to your repository (ensure you are in the right location in your local machine):
+```
+git status
+git add Jenkinsfile-ocp
+git commit -m "Insert a descriptive comment on your changes here"
+git push origin master
+```
+
+4. Go back to Jenkins home, and select **health-ui** pipeline, and select **Configure**:
 
 ![Configure](images/master-branch.png)
 
-4. Select **Build Configuration** and change *script path* to:
+5. Select **Build Configuration** and change *script path* to:
 ```
 jk/Jenkinsfile-ocp
 ```
@@ -470,20 +491,21 @@ jk/Jenkinsfile-ocp
 
 Save your changes.
 
-5. You are now ready to run your pipeline! Go to health-ui pipeline, and select **master** branch:
+6. You are now ready to run your pipeline! Go to health-ui pipeline, and select **master** branch:
 
 ![master](images/master-branch.png)
 
-6. And click on **Build Now**, to follow the process, under **Build History** it will appear a new build number, click on it:
+7. And click on **Build Now**, to follow the process, under **Build History** it will appear a new build number, click on it:
 
 ![build-now](images/build-now.png)
 ![build](images/build.png)
 
-7. Check build logs clicking on **Console Output**:
+8. Check build logs clicking on **Console Output**:
 
 ![console-output](images/console-output.png)
 
-8. Once your pipeline is successful, check health-ui URL. 
+9. Once your pipeline is successful, check health-ui URL. 
+ 
 ![health-ui](images/health-ui.png)
 
 ---
@@ -520,7 +542,7 @@ Save your changes.
 ![search-health-ui](images/search-%20health-ui.png)
 ![choose-health-ui](images/select-health-ui.png)
 
-9. Click on **Create pipeline**. It will request to configure a different name, you can name it as you like, as a suggestion, use *health-ui-icks* and wait until branch indexing finishes:
+8. Click on **Create pipeline**. It will request to configure a different name, you can name it as you like, as a suggestion, use *health-ui-icks* and wait until branch indexing finishes:
 
 ![branch-index](images/branch-index.png)
 
@@ -558,19 +580,28 @@ For this credential, we will use IBM Cloud APIKEY, generated in prerequisites [h
 
 ![ics_pass](images/ics_pass.png)
 
-### Edit and point pipeline to the right Jenkinsfile
+### Change pipeline to use a different Jenkinsfile
 
 1. **On your local repository**, locate Jenkinsfile located at [jk/Jenkinsfile-icks](jk/Jenkinsfile-icks).
-2. Read and understand the Jenkinsfile, in the environment variables locate *NS* variable and change it to yours:
+2. Read and understand the Jenkinsfile, in the environment variables locate *NS* variable and change it (since in ICKS we haven't created a namespace, just add a descriptive name for your health-ui namespace, the pipeline will create it for you):
 ```
     ICS_NAME= 'my-cluster-name'
     NS= 'your-icks-project'
 ```
-3. Go back to Jenkins home, and select **health-ui** pipeline, and select **Configure**:
+
+3. Commit your changes and push them to your repository (ensure you are in the right location in your local machine):
+```
+git status
+git add Jenkinsfile-ocp
+git commit -m "Insert a descriptive comment on your changes here"
+git push origin master
+```
+
+4. Go back to Jenkins home, and select **health-ui** pipeline, and select **Configure**:
 
 ![Configure](images/master-branch.png)
 
-4. Select **Build Configuration** and change *script path* to:
+5. Select **Build Configuration** and change *script path* to:
 ```
 jk/Jenkinsfile-icks
 ```
@@ -578,20 +609,20 @@ jk/Jenkinsfile-icks
 
 Save your changes.
 
-5. You are now ready to run your pipeline! Go to health-ui pipeline, and select **master** branch:
+6. You are now ready to run your pipeline! Go to health-ui pipeline, and select **master** branch:
 
 ![master](images/master-branch.png)
 
-6. And click on **Build Now**, to follow the process, under **Build History** it will appear a new build number, click on it:
+7. And click on **Build Now**, to follow the process, under **Build History** it will appear a new build number, click on it:
 
 ![build-now](images/build-now.png)
 ![build](images/build.png)
 
-7. Check build logs clicking on **Console Output**:
+8. Check build logs clicking on **Console Output**:
 
 ![console-output](images/console-output.png)
 
-8. Once your pipeline is successful, check health-ui URL. 
+9. Once your pipeline is successful, check health-ui URL. 
 ![health-ui](images/health-ui.png)
 
 ---
