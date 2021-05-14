@@ -636,8 +636,6 @@ Save your changes.
 
 1. Login to https://cloud.ibm.com/ . Check that you're in your IBM Cloud account.
    
-   ![navigation](images/navigation-menu.png)
-
 2. Open **Navigation Menu** and click on **DevOps** option.
    
 3. Click on create a new toolchain.
