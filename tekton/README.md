@@ -10,6 +10,7 @@
 2. Create Project
 3. Create service account and add github-secret
 4. Apply pipelines and run
+5. Run pipelines
 
 ### 1. Target your cluster
 
@@ -38,13 +39,15 @@ To make sure the pipeline has the appropriate permissions to store images in the
 
 ```bash
 oc create serviceaccount pipeline #This might have already created
-oc adm policy add-scc-to-user privileged -z pipeline #Forbidden for self-provisioner
 oc adm policy add-role-to-user edit -z pipeline
 ```
 
 In order to be able to pull our artifacts from github private repository we must add a secret to our Service account.
 
-First we must obtain our token, [follow this instructions](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token). Once we have our token ready we need to modify [git-secret.yaml](./git-secret.yaml) file with the corresponding details:
+First we must obtain our token, [follow this instructions](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token). The permissions needed are: ***read:user, repo, user:email, write:repo_hook***
+
+
+Once we have our token ready we need to modify [git-secret.yaml](./git-secret.yaml) file with the corresponding details:
 
 ```bash
 git clone https://github.ibm.com/<your-w3-id>/health-ui
@@ -72,7 +75,7 @@ oc create -f git-secret.yaml
 Add this secret to your ServiceAccount:
 
 ```bash
-oc patch sa pipeline --type=json -p '[{"op":"add","path":"/secrets/-","value":{"name":"git-secret"}}]'
+oc secrets link pipeline git-secret
 ```
 
 Validate you can see the secret listed on the SA:
@@ -99,7 +102,7 @@ Events:              <none>
 
 
 
-### 4. Apply pvc, pipelines and run
+### 4. Apply pvc, pipelines
 
 Pipelines use **workspaces** in order to share data among tasks of the pipeline, and this workspaces use a PVC to store this data. So we need to create PCV using bellow file.
 
@@ -124,7 +127,7 @@ Changes Pipeline Definition:
 - fetch-health-ui         - This task will clone github repository.
 - start-build-health-ui   - This task will start the build process to create IS from Dockerfile. This will also trigger a new pod from the deployment since the image stream has changed.
 
-Before creating the pipelines, we must define the corresponding github repository under the fetch-health-ui task:
+Before creating the pipelines, we must define the corresponding github repository under the fetch-health-ui task for both **pipeline** files:
 
 ```
 tasks:
@@ -150,18 +153,14 @@ oc create -f pipeline-init.yaml
 oc create -f pipeline-change.yaml
 ```
 
-You can then run your pipeline by executing the command:
+### 5. Run pipelines
+
+**PipelineRun** will instantiates the pipeline and execute its tasks. For the initial run we will execute following command:
 
 Initial run:
 
 ```bash
 oc create -f pipelinerun-init.yaml
-```
-
-Any consequent changes run:
-
-```bash
-oc create -f pipelinerun-change.yaml
 ```
 
 Once created, you can follow along with the progress of your pipeline run from the list of  **Pipelines --> Pipeline Runs** in your cluster.  Success looks similar to:
@@ -196,3 +195,43 @@ NAME        HOST/PORT                                           PATH   SERVICES 
 health-ui   health-ui-mario-fernandez-tekton.apps-crc.testing          health-ui   8080-tcp                 None
 mario:tekton/ (master✗) $                                                                                                 
 ```
+# Subsecuent changes
+
+New changes to application must be applied using PipelineRun **pipelinerun-changes.yaml**
+
+Let's modify health-ui application banner.
+
+```
+cd <the path where you cloned your repo>
+vim site/public/login.html
+```
+
+We will modify **Example Health** banner to something else. i.e. **Example Health - Tekton**
+
+```
+<!doctype html>
+<html lang="en">
+...
+      <div class="Fictionalname">Example Health - Tekton</div>
+...
+</html>
+
+```
+
+Once the change was saved, we will push our changes to our github repository.
+
+```
+git add site/public/login.html
+git commit -m "Changes to the Login banner"
+git push origin master
+```
+
+Now, lets execute the PipelineRun (pipelinerun-change.yaml) that will instantiates the pipeline (pipeline-change.yaml) which will execute **start-build-health-ui** task. The *oc start build* command will build a new image and will trigger automatically a new pod instance of the application with the new changes.
+
+```bash
+oc create -f pipelinerun-change.yaml
+```
+
+Once finished validate route:
+
+![patientui-change](./images/health-ui-change.png)
