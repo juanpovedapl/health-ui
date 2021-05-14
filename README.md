@@ -640,9 +640,7 @@ Save your changes.
 
 2. Open **Navigation Menu** and click on **DevOps** option.
    
-   ![devops-opt](images/devops-opt.png)
-
-3. Create a new toolchain:
+3. Click on create a new toolchain.
 
 ![Create toolchain](images/create-toolchain.png)
 
