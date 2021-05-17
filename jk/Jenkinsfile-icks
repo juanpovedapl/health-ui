@@ -92,9 +92,9 @@ pipeline {
   environment {
     UI_Name    = 'health-ui'
     func_test  = 'true'
-    NS         = 'mario-fernandez'
-    ICS_NAME   = 'mycluster'
-    PORT       = '30001'
+    NS         = 'MY-NAMESPACE'
+    ICS_NAME   = 'MY-CLUSTER-NAME'
+    PORT       = 'PORT'
     ICS_DTR    = 'us.icr.io'
 //    ICS_USER   = credentials('ICS_USER')
     ICS_PASS   = credentials('ICS_PASS')  // Use API token

@@ -101,6 +101,6 @@ pipeline {
     OCP_SERVER   = 'https://api.crc.testing:6443'
     OCP_USER     = credentials('OCP_USER')
     OCP_PASS     = credentials('OCP_PASS')
-    NS           = 'mario-fernandez'
+    NS           = 'MY-PROJECT-NAME'
   }
 }
