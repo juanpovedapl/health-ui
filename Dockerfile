@@ -7,6 +7,6 @@ WORKDIR /usr/src/app
 
 RUN npm install -s --only=production
 
-EXPOSE 8080
+EXPOSE
 
 ENTRYPOINT npm start
