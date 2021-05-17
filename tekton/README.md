@@ -94,7 +94,7 @@ Annotations:         <none>
 Image pull secrets:  pipeline-dockercfg-sh5hq
 Mountable secrets:   pipeline-token-tmdhh
                      pipeline-dockercfg-sh5hq
-                     git-secretpipeline-run-init-tg9jf-fetch-health-ui-m74rm-pod-nzkdx
+                     git-secret
 Tokens:              pipeline-token-929lb
                      pipeline-token-tmdhh
 Events:              <none>
@@ -115,17 +115,17 @@ Now we need to create two pipelines into the cluster.
 Initial Pipeline Definition:
 
 [pipeline-init.yaml](./pipeline-init.yaml) this will be used for an initial run.
-- fetch-health-ui         - This task will clone github repository.
-- new-build-health-ui     - This task will create the BC using OC client.
-- start-build-health-ui   - This task will start the build process to create IS from Dockerfile.
-- deploy-health-ui        - This task will create the deployment using the IS already created.
-- expose-health-ui        - This task will expose the service outside the cluster using a route.
+- **fetch-health-ui**         - This task will clone github repository.
+- **new-build-health-ui**     - This task will create the BC using OC client.
+- **start-build-health-ui**   - This task will start the build process to create IS from Dockerfile.
+- **deploy-health-ui**        - This task will create the deployment using the IS already created.
+- **expose-health-ui**        - This task will expose the service outside the cluster using a route.
 
 Changes Pipeline Definition:
 
 [pipeline-change.yaml](./pipeline-change.yaml) this will be used to run any consecutive runs like changes to the code.
-- fetch-health-ui         - This task will clone github repository.
-- start-build-health-ui   - This task will start the build process to create IS from Dockerfile. This will also trigger a new pod from the deployment since the image stream has changed.
+- **fetch-health-ui**         - This task will clone github repository.
+- **start-build-health-ui**   - This task will start the build process to create IS from Dockerfile. This will also trigger a new pod from the deployment since the image stream has changed.
 
 Before creating the pipelines, we must define the corresponding github repository under the fetch-health-ui task for both **pipeline** files:
 
@@ -235,3 +235,5 @@ oc create -f pipelinerun-change.yaml
 Once finished validate route:
 
 ![patientui-change](./images/health-ui-change.png)
+
+You want to learn more, please refer this link: [CI/CD - PIpelines](https://access.redhat.com/documentation/en-us/openshift_container_platform/4.7/html-single/cicd/index#pipelines)
