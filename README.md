@@ -19,7 +19,10 @@
     - [Create health-ui pipeline](#create-health-ui-pipeline-1)
     - [Create ICKS credentials](#create-icks-credentials)
     - [Change pipeline to use a different Jenkinsfile](#change-pipeline-to-use-a-different-jenkinsfile-1)
-  - [6. Create DB and API microservice](#6-create-db-and-api-microservice)
+  - [6. Automate Health-UI deployment in ICKS cluster using IBM Cloud Delivery Pipelines.](#6-automate-health-ui-deployment-in-icks-cluster-using-ibm-cloud-delivery-pipelines)
+    - [Create an IBM Cloud toolchain](#create-an-ibm-cloud-toolchain)
+    - [Run your IBM Cloud Delivery Pipeline](#run-your-ibm-cloud-delivery-pipeline)
+  - [7. Create DB and API microservice](#7-create-db-and-api-microservice)
 
 ---
 
@@ -129,10 +132,10 @@ oc login --server=https://api.crc.testing:6443 --token=<your-token>
 ```
 
 
-3. Create a new project called **yourID-health-ui*
+3. Create a new project called **yourID-health-app*
   
 ```
-  oc new-project <yourID>-health-ui
+  oc new-project <yourID>-health-app
 ```
 
 Locate your local clone of health-ui repository and check the custom Dockerfile, which looks like the following:
@@ -628,26 +631,88 @@ Save your changes.
 
 ---
 
-## 6. Create DB and API microservice
+## 6. Automate Health-UI deployment in ICKS cluster using IBM Cloud Delivery Pipelines.
+
+### Create an IBM Cloud toolchain
+
+1. Login to https://cloud.ibm.com/ . Check that you're in your IBM Cloud account.
+   
+2. Open **Navigation Menu** and click on **DevOps** option.
+   
+3. Click on create a new toolchain.
+
+![Create toolchain](images/create-toolchain.png)
+
+4. Select "Develop a Kubernetes app":
+
+![Develop a kubernetes app](images/develop-a-k8s-app.png)
+
+5. Fill the information as follows:
+
+- **Toolchain Name**: *your-ID*-health-ui
+- **Select Region**: Select the region where your cluster is.
+- **Select a resource group**: default
+- **Select a source provider**: GitHub Enterprise Whitewater
+- **Select a pipeline type**: Classic
+
+![toolchain-config](images/Toolchain-fields-1.png)
+
+Under **Tool Integrations**:
+- GitHub Enterprise Whitewater:
+  - **GitHub Whitewater Server**: Whitewater GitHub Enterprise (https://github.ibm.com)
+  - Check **I understand** check box.
+  - **Repository type**: Existing
+  - **Repository URL**: https://github.ibm.com/*your-ID*/health-ui
+
+![toolchain-config](images/Toolchain-fields-2.png)
+
+Under **Delivery Pipeline**:
+- **App Name**: health-ui
+- **IBM Cloud API Key**: Use the requested APIKEY in prerequisites.
+The following fields will load automatically, change them if needed:
+- **Container registry region**: Leave it as defaults.
+- **Container registry namespace**: Select your namespace.
+- **Cluster region**: Leave it as defaults.
+- **Resource Group**: Default
+- **Cluster name**: *your cluster name*
+- **Cluster namespace**: *your cluster namespace*
+
+![toolchain-config](images/Toolchain-fields-3.png)
+
+Before clicking “Create”, verify that the toolchain name is still the one you specified, if it changed, just re-type your toolchain name.
+
+6. Click on “Create”. Once created, your toolchain should look like the following:
+
+![Toolchain](images/Toolchain.png)
+
+### Run your IBM Cloud Delivery Pipeline
+
+1. Now that your toolchain is ready, click on “Delivery Pipeline”.
+2. The Delivery Pipeline started as soon as you created the toolchain, follow the progress of each stage (Build, Containerize and Deploy) and each job inside them. Click on **View logs and history** to follow each action and its progress for each stage and job.
+  
+  ![inside-delivery-pipeline](images/inside-delivery-pipeline.png)
+
+3. Wait for the delivery pipeline to finish. Once **Deploy** Stage is in Passed status, go to logs and at the end of **Deploy to kubernetes** job, you will find the URL of your app:
+ 
+![deploy-to-kubernetes](images/deploy-2-kubernetes-logs.png)
+
+And URL:
+
+![URL](images/check-url.png)
+
+**Note**: Check and understand what just happened on your delivery pipeline, since all ran automatic it could be a bit mysterious how it works.
+
+
+## 7. Create DB and API microservice
 
 Now that you created Health-UI, you're ready to proceed creating and connecting health-DB and health-API. Read all the following steps before proceeding:
 
 1. Go to health-db and health-api repositories. (Fork and clone them locally).
 2. For each, go to "Manual Deployment" section, and follow the instructions to create each microservice.
 3. Once you checked your DB and API are working, go back to this repository and follow the next steps.
-4. Create the connection between health-ui and health-api defining a new environment variable:
 
-```
-$ oc set env deployment/health-ui API_URL="http://health-api:9080/"
-```
-
-Wait for new health-ui pods to be created:
-```
-$ oc get pods -w
-```
-
-5. Try to login to health-ui URL, you can use marioh/marioh as user and password to test.
+4. Try to login to health-ui URL, you can use marioh/marioh as user and password to test.
 ![health-ui](images/health-ui.png)
 
-1. Once in, you'll be able to navigate in the application:
+5. Once in, you'll be able to navigate in the application:
 ![health-ui](images/health-ui_explore.png)
