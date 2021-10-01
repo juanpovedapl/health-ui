@@ -707,7 +707,7 @@ And URL:
 
 Now that you created Health-UI, you're ready to proceed creating and connecting health-DB and health-API. Read all the following steps before proceeding:
 
-1. Go to (health-db)[https://github.ibm.com/DevOps-Trainings/health-db] and (health-api)[https://github.ibm.com/DevOps-Trainings/health-api] repositories. (Fork and clone them locally).
+1. Go to [health-db](https://github.ibm.com/DevOps-Trainings/health-db) and [health-api](https://github.ibm.com/DevOps-Trainings/health-api) repositories. (Fork and clone them locally).
 2. For each, go to "Manual Deployment" section, and follow the instructions to create each microservice.
 3. Once you checked your DB and API are working, go back to this repository and follow the next steps.
 
