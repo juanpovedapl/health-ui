@@ -11,17 +11,15 @@
   - [1. Fork and clone this repository](#1-fork-and-clone-this-repository)
   - [2. Run Locally using Docker](#2-run-locally-using-docker)
   - [3. Manual Deploy to Openshift](#3-manual-deploy-to-openshift)
-  - [4. Automate Health-UI deployment in OCP SandBox cluster using Jenkins Pipeline Strategy.](#4-automate-health-ui-deployment-in-ocp-sandbox-cluster-using-jenkins-pipeline-strategy)
+  - [4. Automate deployment Health-UI using Jenkins Pipeline Strategy in OCP SandBox cluster.](#4-automate-deployment-health-ui-using-jenkins-pipeline-strategy-in-ocp-sandbox-cluster)
     - [Create health-ui pipeline](#create-health-ui-pipeline)
     - [Create Openshift credentials](#create-openshift-credentials)
     - [Change pipeline to use a different Jenkinsfile](#change-pipeline-to-use-a-different-jenkinsfile)
-  - [5. Automate Health-UI deployment in ICKS cluster using Jenkins Pipeline Strategy.](#5-automate-health-ui-deployment-in-icks-cluster-using-jenkins-pipeline-strategy)
+  - [5. Automate deployment Health-UI using Jenkins Pipeline Strategy in personal ICKS cluster.](#5-automate-deployment-health-ui-using-jenkins-pipeline-strategy-in-personal-icks-cluster)
     - [Create health-ui pipeline](#create-health-ui-pipeline-1)
     - [Create ICKS credentials](#create-icks-credentials)
     - [Change pipeline to use a different Jenkinsfile](#change-pipeline-to-use-a-different-jenkinsfile-1)
-  - [6. Automate Health-UI deployment in ICKS cluster using IBM Cloud Delivery Pipelines.](#6-automate-health-ui-deployment-in-icks-cluster-using-ibm-cloud-delivery-pipelines)
-    - [Create an IBM Cloud toolchain](#create-an-ibm-cloud-toolchain)
-    - [Run your IBM Cloud Delivery Pipeline](#run-your-ibm-cloud-delivery-pipeline)
+  - [6. Create DB and API microservice](#6-create-db-and-api-microservice)
 
 ---
 
@@ -367,7 +365,7 @@ health-ui-...-health-ui.apps.shared-na46.openshift.opentlc.com
 
 ---
 
-## 4. Automate Health-UI deployment in OCP SandBox cluster using Jenkins Pipeline Strategy.
+## 4. Automate deployment Health-UI using Jenkins Pipeline Strategy in OCP SandBox cluster.
 
 ---
 
@@ -513,7 +511,7 @@ Save your changes.
 
 ---
 
-## 5. Automate Health-UI deployment in ICKS cluster using Jenkins Pipeline Strategy.
+## 5. Automate deployment Health-UI using Jenkins Pipeline Strategy in personal ICKS cluster.
 
 ---
 
@@ -630,73 +628,26 @@ Save your changes.
 
 ---
 
-## 6. Automate Health-UI deployment in ICKS cluster using IBM Cloud Delivery Pipelines.
+## 6. Create DB and API microservice
 
-### Create an IBM Cloud toolchain
+Now that you created Health-UI, you're ready to proceed creating and connecting health-DB and health-API. Read all the following steps before proceeding:
 
-1. Login to https://cloud.ibm.com/ . Check that you're in your IBM Cloud account.
-   
-2. Open **Navigation Menu** and click on **DevOps** option.
-   
-3. Click on create a new toolchain.
+1. Go to health-db and health-api repositories. (Fork and clone them locally).
+2. For each, go to "Manual Deployment" section, and follow the instructions to create each microservice.
+3. Once you checked your DB and API are working, go back to this repository and follow the next steps.
+4. Create the connection between health-ui and health-api defining a new environment variable:
 
-![Create toolchain](images/create-toolchain.png)
+```
+$ oc set env deployment/health-ui API_URL="http://health-api:9080/"
+```
 
-4. Select "Develop a Kubernetes app":
+Wait for new health-ui pods to be created:
+```
+$ oc get pods -w
+```
 
-![Develop a kubernetes app](images/develop-a-k8s-app.png)
+5. Try to login to health-ui URL, you can use marioh/marioh as user and password to test.
+![health-ui](images/health-ui.png)
 
-5. Fill the information as follows:
-
-- **Toolchain Name**: *your-ID*-health-ui
-- **Select Region**: Select the region where your cluster is.
-- **Select a resource group**: default
-- **Select a source provider**: GitHub Enterprise Whitewater
-- **Select a pipeline type**: Classic
-
-![toolchain-config](images/Toolchain-fields-1.png)
-
-Under **Tool Integrations**:
-- GitHub Enterprise Whitewater:
-  - **GitHub Whitewater Server**: Whitewater GitHub Enterprise (https://github.ibm.com)
-  - Check **I understand** check box.
-  - **Repository type**: Existing
-  - **Repository URL**: https://github.ibm.com/*your-ID*/health-ui
-
-![toolchain-config](images/Toolchain-fields-2.png)
-
-Under **Delivery Pipeline**:
-- **App Name**: health-ui
-- **IBM Cloud API Key**: Use the requested APIKEY in prerequisites.
-The following fields will load automatically, change them if needed:
-- **Container registry region**: Leave it as defaults.
-- **Container registry namespace**: Select your namespace.
-- **Cluster region**: Leave it as defaults.
-- **Resource Group**: Default
-- **Cluster name**: *your cluster name*
-- **Cluster namespace**: *your cluster namespace*
-
-![toolchain-config](images/Toolchain-fields-3.png)
-
-Before clicking “Create”, verify that the toolchain name is still the one you specified, if it changed, just re-type your toolchain name.
-
-6. Click on “Create”. Once created, your toolchain should look like the following:
-
-![Toolchain](images/Toolchain.png)
-
-### Run your IBM Cloud Delivery Pipeline
-
-1. Now that your toolchain is ready, click on “Delivery Pipeline”.
-2. The Delivery Pipeline started as soon as you created the toolchain, follow the progress of each stage (Build, Containerize and Deploy) and each job inside them. Click on **View logs and history** to follow each action and its progress for each stage and job.
-  
-  ![inside-delivery-pipeline](images/inside-delivery-pipeline.png)
-
-3. Wait for the delivery pipeline to finish. Once **Deploy** Stage is in Passed status, go to logs and at the end of **Deploy to kubernetes** job, you will find the URL of your app:
- 
-![deploy-to-kubernetes](images/deploy-2-kubernetes-logs.png)
-
-And URL:
-
-![URL](images/check-url.png)
-
-**Note**: Check and understand what just happened on your delivery pipeline, since all ran automatic it could be a bit mysterious how it works.
+1. Once in, you'll be able to navigate in the application:
+![health-ui](images/health-ui_explore.png)
