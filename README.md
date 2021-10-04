@@ -711,8 +711,29 @@ Now that you created Health-UI, you're ready to proceed creating and connecting 
 2. For each, go to "Manual Deployment" section, and follow the instructions to create each microservice.
 3. Once you checked your DB and API are working, go back to this repository and follow the next steps.
 
-4. Try to login to health-ui URL, you can use marioh/marioh as user and password to test.
+4. We need to connect health-ui to health-api, to do so, we are going to set the following environment variables in health-ui deployment:
+```
+oc set env deployment/health-ui API_URL="http://health-api:9080/" -e MODE=MODE.OPENSHIFT
+```
+
+You can confirm the configuration running printenv in the health-ui pod:
+```
+$ oc get pods
+
+$ oc rsh <health-ui-pod>
+
+$ printenv
+[...]
+MODE=MODE.OPENSHIFT
+[...]
+API_URL="http://health-api:9080/"
+[...]
+
+$ exit
+```
+
+5. Try to login to health-ui URL, you can use marioh/marioh as user and password to test.
 ![health-ui](images/health-ui.png)
 
-5. Once in, you'll be able to navigate in the application:
+6. Once in, you'll be able to navigate in the application:
 ![health-ui](images/health-ui_explore.png)
