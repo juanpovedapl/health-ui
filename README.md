@@ -737,3 +737,5 @@ $ exit
 
 6. Once in, you'll be able to navigate in the application:
 ![health-ui](images/health-ui_explore.png)
+
+NOTE: If you have a problem once logged in where the user data says: "Undefined", try to login from a private window.
