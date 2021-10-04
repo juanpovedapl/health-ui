@@ -111,8 +111,6 @@ $ docker run -d -p 8080:8080 health-ui
 
 ## 3. Manual Deploy to Openshift
 
-We will create a build for our docker image using s2i (source to image) component in Openshift.
-
 1. Connect to OCP Sandbox environment:
    Login to the Openshift Master Console: 
   - Open Openshift Master Web Console: https://console-openshift-console.apps-crc.testing/dashboards
