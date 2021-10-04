@@ -694,6 +694,12 @@ Before clicking “Create”, verify that the toolchain name is still the one yo
  
 ![deploy-to-kubernetes](images/deploy-2-kubernetes-logs.png)
 
+IMPORTANT NOTE: 
+- If **Deploy** stage fails, click on it, then select **Containerize** stage and click on the gear → **Configure Stage**. 
+- Once in **Configure Stage** for **Containerize** open **Check Registry** job, and take note that IBM Cloud region.
+- Go back to **Deploy** stage and again click on gear → **Configure stage**
+- Click on **Deploy to kubernetes** and IBM Cloud Region should be the same as the one configured in **Check Registry**. If not, change it to be the same.
+
 And URL:
 
 ![URL](images/check-url.png)
