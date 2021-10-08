@@ -372,7 +372,7 @@ health-ui-...-health-ui.apps.shared-na46.openshift.opentlc.com
 
 ### Create health-ui pipeline
 
-1. Ensure your Jenkins local instance is up and running at http://localhost:8080/
+1. Ensure your Jenkins local instance is up and running at http://localhost:9090/
    
 2. Click on **Open Blue Ocean** in the left menu:
    
@@ -518,7 +518,7 @@ Save your changes.
 
 ### Create health-ui pipeline
 
-1. Ensure your Jenkins local instance is up and running at http://localhost:8080/
+1. Ensure your Jenkins local instance is up and running at http://localhost:9090/
    
 2. Click on **Open Blue Ocean** in the left menu:
    
