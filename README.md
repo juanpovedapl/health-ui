@@ -696,7 +696,8 @@ echo "GIT_BRANCH=master" >> $ARCHIVE_DIR/build.properties
 And Save your changes.
 
 3. Configure as well the "Containerize" Stage, clicking on the gear -> Configure Stage.
-Click on "Checking vulnerabilities" Job, and Remove it.
+Click on "Checking vulnerabilities" Job, at the end of the page, uncheck: "Stop running this stage if this job fails".
+Save changes.
 
 4. The Delivery Pipeline started as soon as you created the toolchain, follow the progress of each stage (Build, Containerize and Deploy) and each job inside them. Click on **View logs and history** to follow each action and its progress for each stage and job.
   
