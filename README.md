@@ -686,13 +686,26 @@ Before clicking “Create”, verify that the toolchain name is still the one yo
 ### Run your IBM Cloud Delivery Pipeline
 
 1. Now that your toolchain is ready, click on “Delivery Pipeline”.
-2. The Delivery Pipeline started as soon as you created the toolchain, follow the progress of each stage (Build, Containerize and Deploy) and each job inside them. Click on **View logs and history** to follow each action and its progress for each stage and job.
+
+2. Configure Build Stage: Click on the gear and select Configure Stage.
+Edit the Build Script of the Fetch Code Job so the GIT_BRANCH is master.
+
+```
+echo "GIT_BRANCH=master" >> $ARCHIVE_DIR/build.properties
+```
+And Save your changes.
+
+3. Configure as well the "Containerize" Stage, clicking on the gear -> Configure Stage.
+Click on "Checking vulnerabilities" Job, and Remove it.
+
+4. The Delivery Pipeline started as soon as you created the toolchain, follow the progress of each stage (Build, Containerize and Deploy) and each job inside them. Click on **View logs and history** to follow each action and its progress for each stage and job.
   
   ![inside-delivery-pipeline](images/inside-delivery-pipeline.png)
 
-3. Wait for the delivery pipeline to finish. Once **Deploy** Stage is in Passed status, go to logs and at the end of **Deploy to kubernetes** job, you will find the URL of your app:
+5. Wait for the delivery pipeline to finish. Once **Deploy** Stage is in Passed status, go to logs and at the end of **Deploy to kubernetes** job, you will find the URL of your app:
  
 ![deploy-to-kubernetes](images/deploy-2-kubernetes-logs.png)
+
 
 IMPORTANT NOTE: 
 - If **Deploy** stage fails, click on it, then select **Containerize** stage and click on the gear → **Configure Stage**. 
