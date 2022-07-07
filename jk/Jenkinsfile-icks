@@ -16,7 +16,8 @@ pipeline {
         sh "sed s,health-ui-image,$ICS_DTR/$NS/$UI_Name:\"${env.BUILD_NUMBER}\",g -i k8s/health-ui-deployment-icks.yaml"
         sh "sed s,NODEPORT,$PORT,g -i k8s/health-ui-deployment-icks.yaml"
         sh "grep image: k8s/health-ui-deployment-icks.yaml"
-
+        sh "sed -e '/mount_program =/s/^#//g' -i /etc/containers/storage.conf"
+        sh "grep mount_ /etc/containers/storage.conf"
       }
     }
 
