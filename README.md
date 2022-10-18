@@ -11,11 +11,12 @@
   - [1. Fork and clone this repository](#1-fork-and-clone-this-repository)
   - [2. Run Locally using Docker](#2-run-locally-using-docker)
   - [3. Manual Deploy to Openshift](#3-manual-deploy-to-openshift)
-  - [4. Automate deployment Health-UI using Jenkins Pipeline Strategy in OCP SandBox cluster.](#4-automate-deployment-health-ui-using-jenkins-pipeline-strategy-in-ocp-sandbox-cluster)
+  - [4. Automate Health-UI deployment in OCP SandBox cluster using Jenkins Pipeline Strategy.](#4-automate-health-ui-deployment-in-ocp-sandbox-cluster-using-jenkins-pipeline-strategy)
     - [Create health-ui pipeline](#create-health-ui-pipeline)
     - [Create Openshift credentials](#create-openshift-credentials)
     - [Change pipeline to use a different Jenkinsfile](#change-pipeline-to-use-a-different-jenkinsfile)
-  - [5. Automate deployment Health-UI using Jenkins Pipeline Strategy in personal ICKS cluster.](#5-automate-deployment-health-ui-using-jenkins-pipeline-strategy-in-personal-icks-cluster)
+  - [5. Automate Health-UI deployment in ICKS cluster using Jenkins Pipeline Strategy.](#5-automate-health-ui-deployment-in-icks-cluster-using-jenkins-pipeline-strategy)
+    - [Add participants into your ICKS](#add-participants-into-your-icks)
     - [Create health-ui pipeline](#create-health-ui-pipeline-1)
     - [Create ICKS credentials](#create-icks-credentials)
     - [Change pipeline to use a different Jenkinsfile](#change-pipeline-to-use-a-different-jenkinsfile-1)
@@ -110,6 +111,8 @@ $ docker run -d -p 8080:8080 health-ui
 ---
 
 ## 3. Manual Deploy to Openshift
+
+We will create a build for our docker image using s2i (source to image) component in Openshift.
 
 1. Connect to OCP Sandbox environment:
    Login to the Openshift Master Console: 
@@ -366,13 +369,13 @@ health-ui-...-health-ui.apps.shared-na46.openshift.opentlc.com
 
 ---
 
-## 4. Automate deployment Health-UI using Jenkins Pipeline Strategy in OCP SandBox cluster.
+## 4. Automate Health-UI deployment in OCP SandBox cluster using Jenkins Pipeline Strategy.
 
 ---
 
 ### Create health-ui pipeline
 
-1. Ensure your Jenkins local instance is up and running at http://localhost:9090/
+1. Ensure your Jenkins local instance is up and running at http://localhost:8080/
    
 2. Click on **Open Blue Ocean** in the left menu:
    
@@ -485,6 +488,10 @@ git push origin master
 
 ![Configure](images/master-branch.png)
 
+4.1 On branch sources, set GitHub credentials (it only acceps username/password), username being your IBM w3 ID, and password your IBM GitHub token, then click Validate to see if your credentials are correct.
+
+![Configure](images/jenkins-github-creds.png)
+
 5. Select **Build Configuration** and change *script path* to:
 ```
 jk/Jenkinsfile-ocp
@@ -500,7 +507,6 @@ Save your changes.
 7. And click on **Build Now**, to follow the process, under **Build History** it will appear a new build number, click on it:
 
 ![build-now](images/build-now.png)
-![build](images/build.png)
 
 8. Check build logs clicking on **Console Output**:
 
@@ -512,13 +518,43 @@ Save your changes.
 
 ---
 
-## 5. Automate deployment Health-UI using Jenkins Pipeline Strategy in personal ICKS cluster.
+## 5. Automate Health-UI deployment in ICKS cluster using Jenkins Pipeline Strategy.
 
 ---
 
+### Add participants into your ICKS
+
+1. Go to [IBM Cloud](http://cloud.ibm.com/), ensure you are logged in your personal account.
+   
+2. Go to **Manage → Access (IAM)**
+   
+![manage-iam](images/manage-iam.png)
+
+3. In the left panel, select **Users** and click on **Invite Users**.
+
+![iamUsers](images/iam-users.png)
+
+![inviteusers](images/invite-users.png)
+
+4. Add participant(s) IDs in the box:
+![users-addresses](images/users-box.png)
+
+5. In the right panel select **Invite**
+![invite](images/users-box.png)
+
+6. You should see now the user in the **Users** list, click on the user name, and click on **Access Policies**, and click on **Assign access**
+![userpolicies](images/user-policies.png)
+
+7. Select **IAM services** and select **All identity and Access enabled services**
+![assign-access](images/assign-access.png)
+
+For participants assign **Editor** in Platform access, and **Writer** un Service access, and click on **Assign**
+![user-access](images/user-access.png)
+
+
 ### Create health-ui pipeline
 
-1. Ensure your Jenkins local instance is up and running at http://localhost:9090/
+1. Ensure your Jenkins local instance is up and running at http://localhost:8080/
    
 2. Click on **Open Blue Ocean** in the left menu:
    
@@ -695,6 +731,7 @@ echo "GIT_BRANCH=master" >> $ARCHIVE_DIR/build.properties
 ```
 And Save your changes.
 
+
 3. Configure as well the "Containerize" Stage, clicking on the gear -> Configure Stage.
 Click on "Checking vulnerabilities" Job, at the end of the page, uncheck: "Stop running this stage if this job fails".
 Save changes.
@@ -707,7 +744,6 @@ Save changes.
  
 ![deploy-to-kubernetes](images/deploy-2-kubernetes-logs.png)
 
-
 IMPORTANT NOTE: 
 - If **Deploy** stage fails, click on it, then select **Containerize** stage and click on the gear → **Configure Stage**. 
 - Once in **Configure Stage** for **Containerize** open **Check Registry** job, and take note that IBM Cloud region.
@@ -719,7 +755,6 @@ And URL:
 ![URL](images/check-url.png)
 
 **Note**: Check and understand what just happened on your delivery pipeline, since all ran automatic it could be a bit mysterious how it works.
-
 
 ## 7. Create DB and API microservice
 
@@ -755,5 +790,3 @@ $ exit
 
 6. Once in, you'll be able to navigate in the application:
 ![health-ui](images/health-ui_explore.png)
-
-NOTE: If you have a problem once logged in where the user data says: "Undefined", try to login from a private window.
