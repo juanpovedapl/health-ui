@@ -98,9 +98,9 @@ pipeline {
     UI_Name      = 'health-ui'
     func_test    = 'true'
     scan_code    = 'false'
-    OCP_SERVER   = 'https://api.crc.testing:6443'
+    OCP_SERVER   = 'https://api.shared-na4.na4.openshift.opentlc.com:6443'
     OCP_USER     = credentials('OCP_USER')
     OCP_PASS     = credentials('OCP_PASS')
-    NS           = 'MY-PROJECT-NAME'
+    NS           = 'poveda-health-app'
   }
 }
