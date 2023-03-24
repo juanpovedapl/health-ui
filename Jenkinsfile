@@ -6,6 +6,6 @@ pipeline {
         sh 'echo "Change to corresponding Jenkinsfile for the pipeline"'
       }
     }
+
   }
 }
-
