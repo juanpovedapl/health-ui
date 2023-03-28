@@ -93,9 +93,9 @@ pipeline {
   environment {
     UI_Name    = 'health-ui'
     func_test  = 'true'
-    NS         = 'MY-NAMESPACE'
-    ICS_NAME   = 'MY-CLUSTER-NAME'
-    PORT       = 'PORT'
+    NS         = 'poveda-testing'
+    ICS_NAME   = 'povedaCluster'
+    PORT       = 30002
     ICS_DTR    = 'us.icr.io'
 //    ICS_USER   = credentials('ICS_USER')
     ICS_PASS   = credentials('ICS_PASS')  // Use API token
