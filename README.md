@@ -790,3 +790,4 @@ $ exit
 
 6. Once in, you'll be able to navigate in the application:
 ![health-ui](images/health-ui_explore.png)
+# health-ui
